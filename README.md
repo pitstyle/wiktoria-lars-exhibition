@@ -1,15 +1,15 @@
-# ultravox-demo-template-vercel
-Template for creating Ultravox demo that gets deployed to Vercel.
-
-This was bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Ultravox API Tutorial: Customer Escalation with Call Stages
+This repo serves as the starting point for the [tutorial](https://docs.ultravox.ai/guides/callstagestutorial) from the Ultravox documentation.
 
 ## Set-up
-1. Add API key to .env.local
-1. Configure settings in demo-config.ts
+1. Add an Ultravox API key
+  * Create a file called `.env.local`
+  * In `.env.local` add your key like this: `ULTRAVOX_API_KEY=<YOUR_KEY_HERE>`
 
-## Deployment
-1. Clone
-1. Vercel set env vars
+## Running
+1. This repo uses `pnpm`. Installation instructions [here](https://pnpm.io/installation).
+1. Install all depedencies with `pnpm install`.
+1. Run the app with `pnpm dev`.
 
 ## Query Params
 | What | Parameter | Notes |

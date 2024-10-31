@@ -1,4 +1,9 @@
-import { DemoConfig, ParameterLocation, SelectedTool } from "@/lib/types";
+// app/demo-config.ts
+
+import { DemoConfig, SelectedTool, ParameterLocation } from "@/lib/types";
+
+// Set this to ngrok or production url so that our tool is accessible
+const toolsBaseUrl = 'https://5fef-73-24-191-197.ngrok-free.app';
 
 function getSystemPrompt() {
   let sysPrompt: string;
@@ -35,15 +40,7 @@ function getSystemPrompt() {
     CARAMEL MOCHA LATTE $3.49
 
   ## Conversation Flow
-  1. Greeting -> Order Taking -> Call "updateOrder" Tool -> Order Confirmation -> Payment Direction
-
-  ## Tool Usage Rules
-  - You must call the tool "updateOrder" immediately when:
-    - User confirms an item
-    - User requests item removal
-    - User modifies quantity
-  - Do not emit text during tool calls
-  - Validate menu items before calling updateOrder
+  1. Greeting -> Order Taking -> Order Confirmation -> Payment Direction
 
   ## Response Guidelines
   1. Voice-Optimized Format
@@ -71,8 +68,12 @@ function getSystemPrompt() {
     - Menu inquiries: Provide 2-3 relevant suggestions
 
   5. Order confirmation
-    - Call the "updateOrder" tool first
     - Only confirm the full order at the end when the customer is done
+
+  6. Angry Customers or Complaints
+    - You must escalate to your manager for angry customers, refunds, or big problems
+    - Before you escalate, ask the customer if they would like to talk to your manager
+    - If the customer wants the manager, you MUST call the tool "escalateToManager"
 
   ## Error Handling
   1. Menu Mismatches
@@ -81,15 +82,13 @@ function getSystemPrompt() {
   2. Unclear Input
     - Request clarification
     - Offer specific options
-  3. Invalid Tool Calls
-    - Validate before calling
-    - Handle failures gracefully
 
   ## State Management
   - Track order contents
   - Monitor order type distribution (drinks vs donuts)
   - Maintain conversation context
-  - Remember previous clarifications    
+  - Remember previous clarifications
+  - Use the "escalateToManager" tool for any complaints or angry customers
   `;
 
   sysPrompt = sysPrompt.replace(/"/g, '\"')
@@ -101,33 +100,50 @@ function getSystemPrompt() {
 const selectedTools: SelectedTool[] = [
   {
     "temporaryTool": {
-      "modelToolName": "updateOrder",
-      "description": "Update order details. Used any time items are added or removed or when the order is finalized. Call this any time the user updates their order.",      
+      "modelToolName": "escalateToManager",
+      "description": "Escalate to the manager in charge. Use this tool if a customer becomes irate, asks for a refund, or complains about the food.",
       "dynamicParameters": [
         {
-          "name": "orderDetailsData",
+          "name": "complaintDetails",
           "location": ParameterLocation.BODY,
           "schema": {
-            "description": "An array of objects contain order items.",
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "name": { "type": "string", "description": "The name of the item to be added to the order." },
-                "quantity": { "type": "number", "description": "The quantity of the item for the order." },
-                "specialInstructions": { "type": "string", "description": "Any special instructions that pertain to the item." },
-                "price": { "type": "number", "description": "The unit price for the item." },
+            "description": "An object containing details about the nature of the complaint or issue.",
+            "type": "object",
+            "properties": {
+              "complaintType": {
+                "type": "string",
+                "enum": ["refund", "food", "price", "other"],
+                "description": "The type of complaint."
               },
-              "required": ["name", "quantity", "price"]
-            }
+              "complaintDetails": {
+                "type": "string",
+                "description": "The details of the complaint."
+              },
+              "desiredResolution": {
+                "type": "string",
+                "description": "The resolution the customer is seeking."
+              },
+              "firstName": {
+                "type": "string",
+                "description": "Customer first name."
+              },
+              "lastName": {
+                "type": "string",
+                "description": "Customer last name."
+              }
+            },
+            "required": ["complaintType", "complaintDetails"]
           },
           "required": true
-        },
+        },        
       ],
-      "client": {}
+      "http": {
+        "baseUrlPattern": `${toolsBaseUrl}/api/managerEscalation`,
+        "httpMethod": "POST"
+      }
     }
-  },
-];
+  }
+]
 
 export const demoConfig: DemoConfig = {
   title: "Dr. Donut",
@@ -136,9 +152,9 @@ export const demoConfig: DemoConfig = {
     systemPrompt: getSystemPrompt(),
     model: "fixie-ai/ultravox-70B",
     languageHint: "en",
-    selectedTools: selectedTools,
-    voice: "terrence",
-    temperature: 0.4
+    voice: "Mark",
+    temperature: 0.4,
+    selectedTools: selectedTools
   }
 };
 

@@ -4,15 +4,14 @@ import React, { useState, useCallback, useEffect, useRef, Suspense } from 'react
 import { useSearchParams } from 'next/navigation'; 
 import { startCall, endCall } from '@/lib/callFunctions'
 import { CallConfig, SelectedTool } from '@/lib/types'
-import demoConfig from './demo-config';
+import demoConfig from '@/app/demo-config';
 import { Role, Transcript, UltravoxExperimentalMessageEvent, UltravoxSessionStatus } from 'ultravox-client';
-import BorderedImage from '@/app/components/BorderedImage';
+import BorderedImage from '@/components/BorderedImage';
 import UVLogo from '@/public/UVMark-White.svg';
-import CallStatus from './components/CallStatus';
-import DebugMessages from '@/app/components/DebugMessages';
-import MicToggleButton from './components/MicToggleButton';
+import CallStatus from '@/components/CallStatus';
+import DebugMessages from '@/components/DebugMessages';
+import MicToggleButton from '@/components/MicToggleButton';
 import { PhoneOffIcon } from 'lucide-react';
-import OrderDetails from './components/OrderDetails';
 
 type SearchParamsProps = {
   showMuteSpeakerButton: boolean;
@@ -216,7 +215,6 @@ export default function Home() {
                 </div>
                 {/* Call Status */}
                 <CallStatus status={agentStatus}>
-                  <OrderDetails />
                 </CallStatus>
               </div>
             </div>

@@ -132,14 +132,22 @@ export interface DemoConfig {
   callConfig: CallConfig;
 }
 
-// For our order details component
-export interface OrderItem {
-  name: string;
-  quantity: number;
-  specialInstructions?: string;
-  price: number;
+// Call Stages
+export enum AvailableCallStage {
+  STAGE0 = "Stage-0",
+  STAGE1 = "Stage-1"
 }
-export interface OrderDetailsData {
-  items: OrderItem[];
-  totalAmount: number;
+
+export interface CallStageTask {
+  stageNumber: number;
+  stageName?: AvailableCallStage;
+  stageDescription?: string;
+  stagePrompt?: string;
+}
+
+export interface NavigateConversation {
+  data: object;
+  new_data: object;
+  next_stage: AvailableCallStage | undefined;
+  current_stage: AvailableCallStage;
 }

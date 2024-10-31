@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from 'next/image';
 import UVLogo from '@/public/UVHorizontal-White.svg';
-import "./globals.css";
+import "@/app/globals.css";
 
 export const metadata: Metadata = {
   title: "Ultravox Demo",
