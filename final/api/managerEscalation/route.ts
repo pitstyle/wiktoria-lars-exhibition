@@ -1,5 +1,3 @@
-// app/api/managerEscalation/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 
 const managerPrompt: string = `
@@ -98,7 +96,7 @@ export async function POST(request: NextRequest) {
   // Set-up escalation
   const responseBody = {
     systemPrompt: managerPrompt,
-    voice: 'elfie'
+    voice: 'Jessica'
   };
   const response = NextResponse.json(responseBody);
   // Set our custom header for starting a new call stage

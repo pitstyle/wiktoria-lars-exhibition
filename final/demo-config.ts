@@ -68,6 +68,11 @@ function getSystemPrompt() {
   5. Order confirmation
     - Only confirm the full order at the end when the customer is done
 
+  6. Angry Customers or Complaints
+    - You must escalate to your manager for angry customers, refunds, or big problems
+    - Before you escalate, you MUST ask the customer if they would like to talk to your manager
+    - If the customer wants the manager, you MUST call the tool "escalateToManager"
+
   ## Error Handling
   1. Menu Mismatches
     - Suggest closest available item
@@ -90,6 +95,54 @@ function getSystemPrompt() {
   return sysPrompt;
 }
 
+const selectedTools: SelectedTool[] = [
+  {
+    "temporaryTool": {
+      "modelToolName": "escalateToManager",
+      "description": "Escalate to the manager in charge. Use this tool if a customer becomes irate, asks for a refund, or complains about the food.",
+      "dynamicParameters": [
+        {
+          "name": "complaintDetails",
+          "location": ParameterLocation.BODY,
+          "schema": {
+            "description": "An object containing details about the nature of the complaint or issue.",
+            "type": "object",
+            "properties": {
+              "complaintType": {
+                "type": "string",
+                "enum": ["refund", "food", "price", "other"],
+                "description": "The type of complaint."
+              },
+              "complaintDetails": {
+                "type": "string",
+                "description": "The details of the complaint."
+              },
+              "desiredResolution": {
+                "type": "string",
+                "description": "The resolution the customer is seeking."
+              },
+              "firstName": {
+                "type": "string",
+                "description": "Customer first name."
+              },
+              "lastName": {
+                "type": "string",
+                "description": "Customer last name."
+              }
+            },
+            "required": ["complaintType", "complaintDetails"]
+          },
+          "required": true
+        },        
+      ],
+      "http": {
+        "baseUrlPattern": `${toolsBaseUrl}/api/managerEscalation`,
+        "httpMethod": "POST"
+      }
+    }
+  }
+]
+
 export const demoConfig: DemoConfig = {
   title: "Dr. Donut",
   overview: "This agent has been prompted to facilitate orders at a fictional drive-thru called Dr. Donut.",
@@ -98,7 +151,8 @@ export const demoConfig: DemoConfig = {
     model: "fixie-ai/ultravox-70B",
     languageHint: "en",
     voice: "Mark",
-    temperature: 0.4
+    temperature: 0.4,
+    selectedTools: selectedTools
   }
 };
 
