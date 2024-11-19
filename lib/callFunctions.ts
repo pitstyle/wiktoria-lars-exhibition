@@ -82,7 +82,7 @@ export async function startCall(callbacks: CallCallbacks, callConfig: CallConfig
         callbacks.onStatusChange(uvSession?.status);
       });
   
-      uvSession.addEventListener('transcript', (event: any) => {
+      uvSession.addEventListener('transcripts', (event: any) => {
         callbacks.onTranscriptChange(uvSession?.transcripts);
       });
   
