@@ -4,7 +4,7 @@ import React, { useState, useCallback, useEffect, useRef, Suspense } from 'react
 import { useSearchParams } from 'next/navigation'; 
 import { startCall, endCall } from '@/lib/callFunctions'
 import { CallConfig, SelectedTool } from '@/lib/types'
-import demoConfig from '@/app/demo-config';
+import { larsWiktoriaEnhancedConfig as demoConfig } from '@/app/lars-wiktoria-enhanced-config';
 import { Role, Transcript, UltravoxExperimentalMessageEvent, UltravoxSessionStatus } from 'ultravox-client';
 import BorderedImage from '@/components/BorderedImage';
 import UVLogo from '@/public/UVMark-White.svg';

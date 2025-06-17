@@ -90,7 +90,7 @@ function getSystemPrompt() {
   return sysPrompt;
 }
 
-export const demoConfig: DemoConfig = {
+export const drDonutConfig: DemoConfig = {
   title: "Dr. Donut",
   overview: "This agent has been prompted to facilitate orders at a fictional drive-thru called Dr. Donut.",
   callConfig: {
@@ -136,4 +136,4 @@ export const demoConfig: DemoConfig = {
   }
 };
 
-export default demoConfig;
+export default drDonutConfig;
