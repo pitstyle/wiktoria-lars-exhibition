@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getWiktoriaTheatricalEngagerPrompt, WIKTORIA_VOICE } from '@/app/lars-wiktoria-theatrical-config';
+import { getWiktoriaEngagerPrompt, WIKTORIA_VOICE } from '@/app/lars-wiktoria-enhanced-config';
 import { ParameterLocation } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
 
   // Set up Wiktoria's final user engagement stage with looping capability
   const responseBody = {
-    systemPrompt: getWiktoriaTheatricalEngagerPrompt(),
+    systemPrompt: getWiktoriaEngagerPrompt(),
     voice: WIKTORIA_VOICE,
     toolResultText: `(Wiktoria returning with enhanced context) I'm ready to continue our discussion about ${topic} with insights from both Lars and myself.`,
     // Include tool for requesting Lars perspective again to create conversation loop

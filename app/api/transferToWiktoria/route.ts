@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getWiktoriaTheatricalPrompt, WIKTORIA_VOICE } from '@/app/lars-wiktoria-theatrical-config';
+import { getWiktoriaOpinionPrompt, WIKTORIA_VOICE } from '@/app/lars-wiktoria-enhanced-config';
 import { ParameterLocation } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
 
   // Set up Wiktoria's opinion leader stage
   const responseBody = {
-    systemPrompt: getWiktoriaTheatricalPrompt(),
+    systemPrompt: getWiktoriaOpinionPrompt(),
     voice: WIKTORIA_VOICE,
     toolResultText: `(Wiktoria joining conversation) Hello ${userName}! I'm ready to discuss ${topic} with you.`,
     selectedTools: [

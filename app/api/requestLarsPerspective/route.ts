@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLarsTheatricalPerspectivePrompt, LARS_VOICE } from '@/app/lars-wiktoria-theatrical-config';
+import { getLarsPerspectivePrompt, LARS_VOICE } from '@/app/lars-wiktoria-enhanced-config';
 import { ParameterLocation } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
 
   // Set up Lars's perspective provider stage
   const responseBody = {
-    systemPrompt: getLarsTheatricalPerspectivePrompt(),
+    systemPrompt: getLarsPerspectivePrompt(),
     voice: LARS_VOICE,
     toolResultText: `(Lars joining for perspective) I'm ready to share my thoughts on ${topic}.`,
     selectedTools: [
