@@ -21,8 +21,8 @@ importers:
         specifier: ^18
         version: 18.3.1(react@18.3.1)
       ultravox-client:
-        specifier: ^0.3.2
-        version: 0.3.2
+        specifier: ^0.3.6
+        version: 0.3.6
     devDependencies:
       '@types/node':
         specifier: ^20
@@ -1958,8 +1958,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  ultravox-client@0.3.2:
-    resolution: {integrity: sha512-Z+j1efzyIxOVbjqo8ZcaQTKLoYbPRDa5EIwCcqK6r2CfP5xtKe3fBsiOs81mF0Eq4wyMtvOp8mapT+3S44z+5g==}
+  ultravox-client@0.3.6:
+    resolution: {integrity: sha512-Ut0uIeU6uGY7ZvNQd3Qm4IVDFamfYgt1QeLos52bKUizwjv/jVtQVG8HzbVOIl2dOP+XtqxWuRdGmBeamZCyXw==}
     engines: {pnpm: '>=6.0.0'}
 
   unbox-primitive@1.0.2:
@@ -4173,7 +4173,7 @@ snapshots:
 
   typescript@5.6.2: {}
 
-  ultravox-client@0.3.2:
+  ultravox-client@0.3.6:
     dependencies:
       livekit-client: 2.5.2
 

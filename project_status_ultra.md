@@ -62,6 +62,7 @@ npm run dev  # localhost:3000
 **Status**: Lars ↔ Wiktoria implemented with three config variations tested. Enhanced config (#2) selected as starting point for next development phase.
 
 ## Version History
+- **v1.1.0** (2025-06-17): UI redesign to AI Political Performance theme + Ultravox client bugfix
 - **v1.0.0** (2025-06-17): Initial Lars ↔ Wiktoria implementation with enhanced config selected and tested
 
 ## Configuration Analysis:

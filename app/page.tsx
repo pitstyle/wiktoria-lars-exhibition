@@ -6,8 +6,6 @@ import { startCall, endCall } from '@/lib/callFunctions'
 import { CallConfig, SelectedTool } from '@/lib/types'
 import { larsWiktoriaEnhancedConfig as demoConfig } from '@/app/lars-wiktoria-enhanced-config';
 import { Role, Transcript, UltravoxExperimentalMessageEvent, UltravoxSessionStatus } from 'ultravox-client';
-import BorderedImage from '@/components/BorderedImage';
-import UVLogo from '@/public/UVMark-White.svg';
 import CallStatus from '@/components/CallStatus';
 import DebugMessages from '@/components/DebugMessages';
 import MicToggleButton from '@/components/MicToggleButton';
@@ -141,21 +139,14 @@ export default function Home() {
     <Suspense fallback={<div>Loading...</div>}>
       <SearchParamsHandler>
         {({ showMuteSpeakerButton, modelOverride, showDebugMessages, showUserTranscripts }: SearchParamsProps) => (
-          <div className="flex flex-col items-center justify-center">
+          <div className="flex flex-col items-center justify-center min-h-screen">
             {/* Main Area */}
             <div className="max-w-[1206px] mx-auto w-full py-5 pl-5 pr-[10px] border border-[#2A2A2A] rounded-[3px]">
               <div className="flex flex-col justify-center lg:flex-row ">
                 {/* Action Area */}
                 <div className="w-full lg:w-2/3">
-                  <h1 className="text-2xl font-bold w-full">{demoConfig.title}</h1>
+                  <h1 className="text-2xl font-bold w-full">AI POLITICAL PERFORMANCE</h1>
                   <div className="flex flex-col justify-between items-start h-full font-mono p-4 ">
-                    <div className="mt-20 self-center">
-                      <BorderedImage
-                        src={UVLogo}
-                        alt="todo"
-                        size="md"
-                      />
-                    </div>
                     {isCallActive ? (
                       <div className="w-full">
                         <div className="mb-5 relative">
@@ -167,13 +158,13 @@ export default function Home() {
                               <div key={index}>
                                 {showUserTranscripts ? (
                                   <>
-                                    <p><span className="text-gray-600">{transcript.speaker === 'agent' ? "Ultravox" : "User"}</span></p>
+                                    <p><span className="text-gray-600">{transcript.speaker === 'agent' ? "AI Agent" : "User"}</span></p>
                                     <p className="mb-4"><span>{transcript.text}</span></p>
                                   </>
                                 ) : (
                                   transcript.speaker === 'agent' && (
                                     <>
-                                      <p><span className="text-gray-600">{transcript.speaker === 'agent' ? "Ultravox" : "User"}</span></p>
+                                      <p><span className="text-gray-600">{transcript.speaker === 'agent' ? "AI Agent" : "User"}</span></p>
                                       <p className="mb-4"><span>{transcript.text}</span></p>
                                     </>
                                   )
