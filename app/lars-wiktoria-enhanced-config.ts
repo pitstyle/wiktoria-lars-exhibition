@@ -4,7 +4,7 @@ import { DemoConfig, SelectedTool, ParameterLocation } from "@/lib/types";
 const toolsBaseUrl = process.env.VERCEL_URL 
   ? `https://${process.env.VERCEL_URL}`
   : (process.env.NODE_ENV === 'production' 
-    ? 'https://wiktoria-lars-hur3jvdn3-pitstyles-projects.vercel.app'  // Fallback
+    ? 'https://wiktoria-lars-app.vercel.app'  // Permanent domain
     : 'https://1457-31-178-4-112.ngrok-free.app'); // Local development
 
 // Voice IDs
