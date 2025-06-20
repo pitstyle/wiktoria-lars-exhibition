@@ -255,7 +255,7 @@ const selectedTools: SelectedTool[] = [
 
 export const larsWiktoriaEnhancedConfig: DemoConfig = {
   title: "Lars & Wiktoria Enhanced Flow",
-  overview: "Enhanced two-agent conversation system with Mathias (Danish) voice for Lars and complete conversation flow including expert opinions, user experience exploration, and synthesized discussions.",
+  overview: "Welcome to Political Performance! What Political Reality Should We Explore? Share Your Name and Vision. Speak to start.",
   callConfig: {
     systemPrompt: getLarsCollectorPrompt(),
     model: "fixie-ai/ultravox-70B",

@@ -43,6 +43,7 @@ export default function Home() {
   const [callTranscript, setCallTranscript] = useState<Transcript[] | null>([]);
   const [callDebugMessages, setCallDebugMessages] = useState<UltravoxExperimentalMessageEvent[]>([]);
   const [customerProfileKey, setCustomerProfileKey] = useState<string | null>(null);
+  const [currentVoiceId, setCurrentVoiceId] = useState<string>('876ac038-08f0-4485-8b20-02b42bcf3416'); // Start with Lars
   const transcriptContainerRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
@@ -68,12 +69,27 @@ export default function Home() {
 
   const handleDebugMessage = useCallback((debugMessage: UltravoxExperimentalMessageEvent) => {
     setCallDebugMessages(prevMessages => [...prevMessages, debugMessage]);
+    
+    // Track voice changes to determine current agent
+    if (debugMessage.type === 'voice_changed' && (debugMessage as any).voice?.voiceId) {
+      setCurrentVoiceId((debugMessage as any).voice.voiceId);
+    }
   }, []);
 
   const clearCustomerProfile = useCallback(() => {
     // This will trigger a re-render of CustomerProfileForm with a new empty profile
     setCustomerProfileKey(prev => prev ? `${prev}-cleared` : 'cleared');
   }, []);
+
+  const getAgentName = (voiceId?: string) => {
+    const activeVoiceId = voiceId || currentVoiceId;
+    if (activeVoiceId === '876ac038-08f0-4485-8b20-02b42bcf3416') {
+      return 'LEADER LARS';
+    } else if (activeVoiceId === '2e40bf21-8c36-45db-a408-5a3fc8d833db') {
+      return 'WIKTORIA CUKT 2.0';
+    }
+    return 'AI AGENT'; // Fallback
+  };
 
   const handleStartCallButtonClick = async (modelOverride?: string, showDebugMessages?: boolean) => {
     try {
@@ -139,32 +155,36 @@ export default function Home() {
     <Suspense fallback={<div>Loading...</div>}>
       <SearchParamsHandler>
         {({ showMuteSpeakerButton, modelOverride, showDebugMessages, showUserTranscripts }: SearchParamsProps) => (
-          <div className="flex flex-col items-center justify-center min-h-screen">
+          <div className="flex flex-col items-center justify-center min-h-screen py-4">
+            {/* Logo */}
+            <div className="mb-8">
+              <img src="/Ai_3d03.png" alt="ART Logo" className="w-96 h-auto" />
+            </div>
             {/* Main Area */}
-            <div className="max-w-[1206px] mx-auto w-full py-5 pl-5 pr-[10px] border border-[#2A2A2A] rounded-[3px]">
-              <div className="flex flex-col justify-center lg:flex-row ">
+            <div className="max-w-[800px] mx-auto w-[90%] h-[60vh] py-3 pl-5 pr-[10px] border border-[#2A2A2A] rounded-[3px] bg-white text-black overflow-hidden">
+              <div className="flex flex-col justify-center">
                 {/* Action Area */}
-                <div className="w-full lg:w-2/3">
-                  <h1 className="text-2xl font-bold w-full">AI POLITICAL PERFORMANCE</h1>
+                <div className="w-full">
+                  <h1 className="text-2xl font-bold w-full text-red-500">AI POLITICAL PERFORMANCE</h1>
                   <div className="flex flex-col justify-between items-start h-full font-mono p-4 ">
                     {isCallActive ? (
                       <div className="w-full">
                         <div className="mb-5 relative">
                           <div 
                             ref={transcriptContainerRef}
-                            className="h-[300px] p-2.5 overflow-y-auto relative"
+                            className="h-[20vh] p-2.5 overflow-y-auto relative"
                           >
                             {callTranscript && callTranscript.map((transcript, index) => (
                               <div key={index}>
                                 {showUserTranscripts ? (
                                   <>
-                                    <p><span className="text-gray-600">{transcript.speaker === 'agent' ? "AI Agent" : "User"}</span></p>
+                                    <p><span className="text-red-500 font-bold">{transcript.speaker === 'agent' ? getAgentName() : "USER"}</span></p>
                                     <p className="mb-4"><span>{transcript.text}</span></p>
                                   </>
                                 ) : (
                                   transcript.speaker === 'agent' && (
                                     <>
-                                      <p><span className="text-gray-600">{transcript.speaker === 'agent' ? "AI Agent" : "User"}</span></p>
+                                      <p><span className="text-red-500 font-bold">{transcript.speaker === 'agent' ? getAgentName() : "USER"}</span></p>
                                       <p className="mb-4"><span>{transcript.text}</span></p>
                                     </>
                                   )
@@ -172,7 +192,6 @@ export default function Home() {
                               </div>
                             ))}
                           </div>
-                          <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-t from-transparent to-black pointer-events-none" />
                         </div>
                         <div className="flex justify-between space-x-4 p-4 w-full">
                           <MicToggleButton role={Role.USER}/>
@@ -190,7 +209,7 @@ export default function Home() {
                       </div>
                     ) : (
                       <div>
-                        <div className="h-[300px] text-gray-400 mb-6 mt-32 lg:mt-0">
+                        <div className="h-[20vh] text-gray-400 mb-6 flex items-center justify-center">
                           {demoConfig.overview}
                         </div>
                         <button
@@ -203,14 +222,14 @@ export default function Home() {
                       </div>
                     )}
                   </div>
+                  {/* Call Status */}
+                  <CallStatus status={agentStatus}>
+                  </CallStatus>
+                  {/* Debug View */}
+                  <DebugMessages debugMessages={callDebugMessages} />
                 </div>
-                {/* Call Status */}
-                <CallStatus status={agentStatus}>
-                </CallStatus>
               </div>
             </div>
-            {/* Debug View */}
-            <DebugMessages debugMessages={callDebugMessages} />
           </div>
         )}
       </SearchParamsHandler>
