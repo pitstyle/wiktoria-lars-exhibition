@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
             }
           ],
           "http": {
-            "baseUrlPattern": `${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://1457-31-178-4-112.ngrok-free.app'}/api/requestLarsPerspective`,
+            "baseUrlPattern": `${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://a97e-31-178-4-112.ngrok-free.app'}/api/requestLarsPerspective`,
             "httpMethod": "POST"
           }
         }
