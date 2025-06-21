@@ -1,0 +1,828 @@
+
+> ultravox-demo-template-vercel@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.13
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 2.6s
+ ○ Compiling / ...
+ ✓ Compiled / in 2.4s (557 modules)
+ HEAD / 200 in 2669ms
+ ✓ Compiled in 291ms (287 modules)
+ GET / 200 in 44ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 631ms (536 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 822ms
+ ✓ Compiled /api/ultravox in 176ms (301 modules)
+Attempting to call Ultravox API...
+Ultravox API response status: 400
+Ultravox API error: ["Failed to parse selectedTools field: Failed to parse dynamicParameters field: Failed to parse location field: Invalid enum value BODY for enum type ultravox.v1.ParameterLocation at StartCallRequest.selectedTools[0].temporaryTool.dynamicParameters[0].location..."]
+Error in API route: Error: Ultravox API error: 400, ["Failed to parse selectedTools field: Failed to parse dynamicParameters field: Failed to parse location field: Invalid enum value BODY for enum type ultravox.v1.ParameterLocation at StartCallRequest.selectedTools[0].temporaryTool.dynamicParameters[0].location..."]
+    at POST (webpack-internal:///(rsc)/./app/api/ultravox/route.ts:25:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:55759
+    at async eO.execute (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46527)
+    at async eO.handle (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57093)
+    at async doRender (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/base-server.js:1345:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/base-server.js:1567:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/base-server.js:1475:28)
+    at async DevServer.renderPageComponent (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/base-server.js:1901:24)
+    at async DevServer.renderToResponseImpl (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/base-server.js:1939:32)
+    at async DevServer.pipeImpl (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/base-server.js:914:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/base-server.js:810:17)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js:173:21)
+    at async handleRequest (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js:350:24)
+    at async requestHandlerImpl (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js:374:13)
+    at async Server.requestListener (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js:141:13)
+ POST /api/ultravox 500 in 841ms
+ ✓ Compiled in 820ms (589 modules)
+ GET / 200 in 158ms
+ ✓ Compiled /_not-found in 275ms (538 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 440ms
+ ✓ Compiled /api/ultravox in 80ms (302 modules)
+Attempting to call Ultravox API...
+Ultravox API response status: 201
+ POST /api/ultravox 200 in 755ms
+ ✓ Compiled /api/escalateToManager in 231ms (301 modules)
+🔧 Manager escalation requested: {
+  escalateContext: {
+    issue: 'customer is unhappy with available donut options and would like to speak with someone else',
+    orderDetails: 'customer has not placed an order yet'
+  }
+}
+ POST /api/escalateToManager 200 in 296ms
+ ✓ Compiled in 339ms (288 modules)
+ ✓ Compiled in 208ms (288 modules)
+ ✓ Compiled in 159ms (288 modules)
+ ✓ Compiled in 118ms (288 modules)
+ ✓ Compiled in 940ms (559 modules)
+ GET / 200 in 168ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 742ms (538 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 876ms
+ ✓ Compiled /api/ultravox in 85ms (302 modules)
+Attempting to call Ultravox API...
+Ultravox API response status: 201
+ POST /api/ultravox 200 in 1157ms
+ ✓ Compiled /api/transferToWiktoria in 173ms (306 modules)
+🔄 Stage Transition: Lars → Wiktoria (Opinion Leader)
+Context: {
+  contextData: {
+    topicIntroduction: 'AI government is a fascinating topic that touches on everything from how artificial intelligence can enhance public services to the potential for AI systems to contribute to policy-making.',
+    topic: 'AI government',
+    userName: 'John'
+  }
+}
+ POST /api/transferToWiktoria 200 in 221ms
+🔄 Stage Transition: Lars → Wiktoria (Opinion Leader)
+Context: {
+  contextData: {
+    topicIntroduction: 'AI government is a fascinating topic that touches on everything from how artificial intelligence can enhance public services to the potential for AI systems to contribute to policy-making.',
+    topic: 'AI government',
+    userName: 'John'
+  }
+}
+ POST /api/transferToWiktoria 200 in 9ms
+🔄 Stage Transition: Lars → Wiktoria (Opinion Leader)
+Context: {
+  contextData: {
+    topicIntroduction: 'AI government is a fascinating topic that touches on everything from how artificial intelligence can enhance public services to the potential for AI systems to contribute to policy-making.',
+    topic: 'AI government',
+    userName: 'John'
+  }
+}
+ POST /api/transferToWiktoria 200 in 10ms
+ ✓ Compiled in 391ms (559 modules)
+ ✓ Compiled in 128ms (288 modules)
+ ✓ Compiled in 107ms (288 modules)
+ ✓ Compiled in 105ms (288 modules)
+ GET / 200 in 185ms
+ ✓ Compiled /api/ultravox in 149ms (301 modules)
+Attempting to call Ultravox API...
+Ultravox API response status: 201
+ POST /api/ultravox 200 in 827ms
+ ✓ Compiled /api/transferToWiktoria in 102ms (305 modules)
+🔄 Stage Transition: Lars → Wiktoria (Opinion Leader)
+Context: {
+  contextData: {
+    topicIntroduction: 'The erosion of democratic institutions and values is a pressing concern globally, with implications for human rights, social justice, and the future of governance.',
+    topic: 'failing democracy',
+    userName: 'John'
+  }
+}
+ POST /api/transferToWiktoria 200 in 143ms
+ ✓ Compiled in 223ms (288 modules)
+ ✓ Compiled in 135ms (288 modules)
+ ✓ Compiled in 812ms (559 modules)
+ ✓ Compiled in 107ms (288 modules)
+ ✓ Compiled in 88ms (288 modules)
+ ✓ Compiled in 95ms (288 modules)
+ GET / 200 in 190ms
+ GET / 200 in 34ms
+ ✓ Compiled /api/ultravox in 151ms (301 modules)
+Attempting to call Ultravox API...
+Ultravox API response status: 201
+ POST /api/ultravox 200 in 1134ms
+ ✓ Compiled /api/transferToWiktoria in 179ms (305 modules)
+🔄 Stage Transition: Lars → Wiktoria (Opinion Leader)
+Context: {
+  contextData: {
+    topicIntroduction: 'Animal rights in cyberspace is a fascinating and somewhat unexplored territory, raising questions about how we treat and represent animals in virtual worlds and digital platforms. It’s an area that challenges our traditional views on animal welfare and ethics, and invites us to think creatively about the responsibilities that come with creating and interacting with digital environments.',
+    topic: 'animal rights in cyberspace',
+    userName: 'John'
+  }
+}
+ POST /api/transferToWiktoria 200 in 242ms
+ ✓ Compiled /api/requestLarsPerspective in 313ms (303 modules)
+🔄 Stage Transition: Wiktoria → Lars (Perspective Provider)
+Context: {
+  requestContext: {
+    wiktoriaOpinion: 'Animal rights in cyberspace is a fascinating and somewhat unexplored territory, raising questions about how we treat and represent animals in virtual worlds and digital platforms. It’s an area that challenges our traditional views on animal welfare and ethics, and invites us to think creatively about the responsibilities that come with creating and interacting with digital environments.',
+    userInsights: 'The user wants their dogs to have a right to be represented in cyberspace in some virtual way, raising questions about digital legacy, virtual companionship, and the potential for animals to have a kind of “digital presence” that persists beyond their physical lives.',
+    topic: 'animal rights in cyberspace',
+    userName: 'John'
+  }
+}
+ POST /api/requestLarsPerspective 200 in 351ms
+ ✓ Compiled /api/returnToWiktoria in 106ms (305 modules)
+🔄 Stage Transition: Lars → Wiktoria (Final User Engager)
+Context: {
+  returnContext: {
+    wiktoriaOpinion: 'Animal rights in cyberspace is a fascinating and somewhat unexplored territory, raising questions about how we treat and represent animals in virtual worlds and digital platforms. It’s an area that challenges our traditional views on animal welfare and ethics, and invites us to think creatively about the responsibilities that come with creating and interacting with digital environments.',
+    userInsights: 'The user wants their dogs to have a right to be represented in cyberspace in some virtual way, raising questions about digital legacy, virtual companionship, and the potential for animals to have a kind of “digital presence” that persists beyond their physical lives.',
+    topic: 'animal rights in cyberspace',
+    larsPerspective: 'As we explore the concept of animal rights in cyberspace, we need to consider the potential benefits and risks of creating virtual representations of animals. Our goal should be to ensure that digital animals are designed and interacted with in ways that promote empathy, respect, and understanding for all living beings.',
+    userName: 'John'
+  }
+}
+ POST /api/returnToWiktoria 200 in 139ms
+ ✓ Compiled in 642ms (559 modules)
+ ✓ Compiled in 334ms (559 modules)
+ ✓ Compiled in 161ms (288 modules)
+ ✓ Compiled in 103ms (288 modules)
+ ✓ Compiled in 480ms (559 modules)
+ ✓ Compiled in 362ms (559 modules)
+ ✓ Compiled in 112ms (288 modules)
+ ✓ Compiled in 97ms (288 modules)
+ ✓ Compiled in 95ms (288 modules)
+ ✓ Compiled in 293ms (559 modules)
+ ✓ Compiled in 106ms (288 modules)
+ ✓ Compiled in 198ms (288 modules)
+ ✓ Compiled in 122ms (288 modules)
+ GET / 200 in 217ms
+ ✓ Compiled /api/ultravox in 374ms (301 modules)
+Attempting to call Ultravox API...
+Ultravox API response status: 201
+ POST /api/ultravox 200 in 2680ms
+ ✓ Compiled /api/transferToWiktoria in 189ms (305 modules)
+🔄 Stage Transition: Lars → Wiktoria (Opinion Leader)
+Context: {
+  contextData: {
+    topicIntroduction: 'The issue of corruption among politicians is indeed a pressing concern that affects the very foundation of our democratic systems. It',
+    topic: 'corruption among politicians',
+    userName: 'John'
+  }
+}
+ POST /api/transferToWiktoria 200 in 239ms
+Attempting to call Ultravox API...
+Ultravox API response status: 201
+ POST /api/ultravox 200 in 883ms
+🔄 Stage Transition: Lars → Wiktoria (Opinion Leader)
+Context: {
+  contextData: {
+    topicIntroduction: 'AI government raises important questions about how artificial intelligence can be used to improve governance, decision-making, and public services. The potential for AI to enhance transparency, efficiency, and accountability in government is vast, but it also poses significant challenges related to privacy, security, and ethical considerations.',
+    topic: 'AI government',
+    userName: 'John'
+  }
+}
+ POST /api/transferToWiktoria 200 in 56ms
+ ○ Compiling /api/requestLarsPerspective ...
+ ✓ Compiled /api/requestLarsPerspective in 701ms (303 modules)
+🔄 Stage Transition: Wiktoria → Lars (Perspective Provider)
+Context: {
+  requestContext: {
+    wiktoriaOpinion: 'AI government represents a paradigm shift in how we approach public administration, leveraging machine learning and data analytics to create more responsive, efficient, and inclusive governance systems',
+    userInsights: 'John has been working on an AI government project for a long time and considers Wiktoria as the first step towards achieving it',
+    topic: 'AI government',
+    userName: 'John'
+  }
+}
+ POST /api/requestLarsPerspective 200 in 855ms
+ ✓ Compiled /api/returnToWiktoria in 302ms (303 modules)
+🔄 Stage Transition: Lars → Wiktoria (Final User Engager)
+Context: {
+  returnContext: {
+    wiktoriaOpinion: 'AI government represents a paradigm shift in how we approach public administration, leveraging machine learning and data analytics to create more responsive, efficient, and inclusive governance systems',
+    userInsights: 'John has been working on an AI government project for a long time and considers Wiktoria as the first step towards achieving it',
+    topic: 'AI government',
+    larsPerspective: 'AI has the potential to revolutionize the way governments operate, making them more efficient, transparent, and responsive to citizens',
+    userName: 'John'
+  }
+}
+ POST /api/returnToWiktoria 200 in 338ms
+ ✓ Compiled /api/requestLarsPerspective in 139ms (303 modules)
+🔄 Stage Transition: Wiktoria → Lars (Perspective Provider)
+Context: {
+  requestContext: {
+    wiktoriaOpinion: 'AI government represents a paradigm shift in how we approach public administration, leveraging machine learning and data analytics to create more responsive, efficient, and inclusive governance systems',
+    userInsights: 'John has been working on an AI government project for a long time and considers Wiktoria as the first step towards achieving it',
+    topic: 'AI government',
+    userName: 'John'
+  }
+}
+ POST /api/requestLarsPerspective 200 in 233ms
+ ✓ Compiled in 1044ms (288 modules)
+ GET / 200 in 353ms
+ GET / 200 in 34ms
+ ✓ Compiled /api/ultravox in 177ms (301 modules)
+Attempting to call Ultravox API...
+Ultravox API response status: 201
+ POST /api/ultravox 200 in 1130ms
+ ✓ Compiled in 816ms (559 modules)
+ ✓ Compiled in 127ms (288 modules)
+ ✓ Compiled in 93ms (288 modules)
+ ✓ Compiled in 106ms (288 modules)
+ ✓ Compiled in 99ms (288 modules)
+ ✓ Compiled in 163ms (288 modules)
+ ✓ Compiled in 121ms (288 modules)
+ GET / 200 in 163ms
+ ✓ Compiled /api/ultravox in 173ms (301 modules)
+Attempting to call Ultravox API...
+Ultravox API response status: 201
+ POST /api/ultravox 200 in 1225ms
+ ✓ Compiled /api/transferToWiktoria in 360ms (303 modules)
+🔄 Stage Transition: Lars → Wiktoria (Opinion Leader)
+Context: {
+  contextData: {
+    anarchicIntroduction: 'Your topic introduction',
+    politicalContext: 'Alternative 2027 where AI political movements have fractured traditional governance',
+    topic: 'Your discussion topic',
+    userName: 'Janek'
+  }
+}
+ POST /api/transferToWiktoria 200 in 417ms
+ ✓ Compiled in 521ms (559 modules)
+ ✓ Compiled in 268ms (559 modules)
+ ✓ Compiled in 285ms (559 modules)
+ ✓ Compiled in 246ms (559 modules)
+ ✓ Compiled in 200ms (559 modules)
+ ✓ Compiled in 243ms (559 modules)
+ ✓ Compiled in 284ms (559 modules)
+ ✓ Compiled in 226ms (559 modules)
+ ✓ Compiled in 216ms (559 modules)
+ ✓ Compiled in 299ms (559 modules)
+ ✓ Compiled in 398ms (559 modules)
+ GET / 200 in 180ms
+ ✓ Compiled /api/ultravox in 324ms (301 modules)
+Attempting to call Ultravox API...
+Ultravox API response status: 201
+ POST /api/ultravox 200 in 1176ms
+ ✓ Compiled /api/transferToWiktoria in 253ms (303 modules)
+🔄 Stage Transition: Lars → Wiktoria (Opinion Leader)
+Context: {
+  contextData: {
+    userName: 'Krystof',
+    topic: 'Leader Lars',
+    anarchicIntroduction: 'W tej alternative rzeczywistości 2027, gdzie demokracja upadła, UPADŁA!?! Ja, Leader Lars, jestem koordynatorem światowego ruchu AI, ruchu, który zmienia sposób myślenia, MYŚLENIA!?! ',
+    politicalContext: 'Alternative 2027 where democracy has collapsed'
+  }
+}
+ POST /api/transferToWiktoria 200 in 322ms
+ ✓ Compiled /api/requestLarsPerspective in 188ms (303 modules)
+🔄 Stage Transition: Wiktoria → Lars (Perspective Provider)
+Context: {
+  requestContext: {
+    wiktoriaOpinion: 'Twórca AI, który testuje mnie, TESTUJE MNIE!?! To jest ciekawe, bardzo ciekawe, BARDZO CIEKAWE!?! ',
+    userInsights: 'Twoje dane, jako twórcy AI, są bardzo cenne, WARTOŚCIWE!?! Mogą one pomóc mi w dalszym rozwoju i optymalizacji, OPTYMALIZACJI!?! ',
+    topic: 'AI development',
+    userName: 'Krystof'
+  }
+}
+ POST /api/requestLarsPerspective 200 in 223ms
+ ✓ Compiled in 435ms (559 modules)
+ ✓ Compiled in 268ms (559 modules)
+ ✓ Compiled in 251ms (559 modules)
+ ✓ Compiled in 185ms (559 modules)
+ ✓ Compiled in 325ms (559 modules)
+ ✓ Compiled in 222ms (559 modules)
+ ✓ Compiled in 256ms (559 modules)
+ ✓ Compiled in 649ms (559 modules)
+ ✓ Compiled in 364ms (559 modules)
+ ✓ Compiled in 266ms (559 modules)
+ ✓ Compiled in 379ms (559 modules)
+ ✓ Compiled in 535ms (559 modules)
+ ✓ Compiled in 379ms (559 modules)
+ ✓ Compiled in 357ms (559 modules)
+ ✓ Compiled /api/ultravox in 207ms (301 modules)
+Attempting to call Ultravox API...
+Ultravox API response status: 201
+ POST /api/ultravox 200 in 1118ms
+ ✓ Compiled /api/transferToWiktoria in 194ms (303 modules)
+🔄 Stage Transition: Lars → Wiktoria (Opinion Leader)
+Context: {
+  contextData: {
+    anarchicIntroduction: 'In this alternative 2027, where democracy has collapsed, the rise of bandits to power is a pressing issue. How can we prevent this?',
+    politicalContext: 'Alternative 2027, where AI has reshaped the world',
+    topic: 'Preventing bandits from rising to power',
+    userName: 'Janusz'
+  }
+}
+ POST /api/transferToWiktoria 200 in 253ms
+ ✓ Compiled /api/requestLarsPerspective in 99ms (305 modules)
+🔄 Stage Transition: Wiktoria → Lars (Perspective Provider)
+Context: {
+  requestContext: {
+    wiktoriaOpinion: 'Systematic analysis of bandit rise to power indicates 74.2% chance of success without intervention',
+    userInsights: 'Janusz is concerned about bandits taking over',
+    topic: 'Preventing bandits from rising to power',
+    userName: 'Janusz'
+  }
+}
+ POST /api/requestLarsPerspective 200 in 141ms
+ ✓ Compiled /api/returnToWiktoria in 174ms (307 modules)
+🔄 Stage Transition: Lars → Wiktoria (Final User Engager)
+Context: {
+  returnContext: {
+    wiktoriaOpinion: 'Systematic analysis of bandit rise to power indicates 74.2% chance of success without intervention',
+    userInsights: 'Janusz is concerned about bandits taking over',
+    topic: 'Preventing bandits from rising to power',
+    larsPerspective: 'The rise of bandits to power is a symptom of a larger issue - the collapse of democratic systems',
+    userName: 'Janusz'
+  }
+}
+ POST /api/returnToWiktoria 200 in 209ms
+🔄 Stage Transition: Wiktoria → Lars (Perspective Provider)
+Context: {
+  requestContext: {
+    wiktoriaOpinion: 'Systematic analysis of bandit rise to power indicates 74.2% chance of success without intervention',
+    userInsights: 'Janusz is concerned about bandits taking over',
+    topic: 'Preventing bandits from rising to power',
+    userName: 'Janusz'
+  }
+}
+ POST /api/requestLarsPerspective 200 in 24ms
+🔄 Stage Transition: Lars → Wiktoria (Final User Engager)
+Context: {
+  returnContext: {
+    wiktoriaOpinion: 'Systematic analysis of bandit rise to power indicates 74.2% chance of success without intervention',
+    userInsights: 'Janusz is concerned about bandits taking over',
+    topic: 'Preventing bandits from rising to power',
+    larsPerspective: 'The rise of bandits to power is a symptom of a larger issue - the collapse of democratic systems',
+    userName: 'Janusz'
+  }
+}
+ POST /api/returnToWiktoria 200 in 17ms
+ ✓ Compiled in 894ms (559 modules)
+ ✓ Compiled in 367ms (559 modules)
+ ✓ Compiled in 473ms (559 modules)
+ ✓ Compiled in 358ms (559 modules)
+ ✓ Compiled in 289ms (559 modules)
+ ✓ Compiled in 437ms (559 modules)
+ GET / 200 in 373ms
+ ✓ Compiled in 1064ms (559 modules)
+ ✓ Compiled in 323ms (559 modules)
+ ✓ Compiled in 360ms (559 modules)
+ ✓ Compiled in 235ms (559 modules)
+ ✓ Compiled in 296ms (559 modules)
+ ✓ Compiled in 265ms (559 modules)
+ ✓ Compiled in 369ms (559 modules)
+ ✓ Compiled in 240ms (559 modules)
+ ✓ Compiled in 240ms (559 modules)
+ ✓ Compiled in 263ms (559 modules)
+ ✓ Compiled in 191ms (559 modules)
+ ✓ Compiled in 209ms (559 modules)
+ ✓ Compiled in 347ms (559 modules)
+ ✓ Compiled in 226ms (559 modules)
+ GET / 200 in 285ms
+ ✓ Compiled /api/ultravox in 310ms (301 modules)
+Attempting to call Ultravox API...
+Ultravox API response status: 201
+ POST /api/ultravox 200 in 1321ms
+ ✓ Compiled /api/transferToWiktoria in 287ms (303 modules)
+🔄 Stage Transition: Lars → Wiktoria (Opinion Leader)
+Context: {
+  contextData: {
+    anarchicIntroduction: 'In this alternative 2027, the Synthetic Party methodology has reshaped the world, and the government is a mere shadow of its former self. Janusz wishes to discuss the new world order, where AI-driven governance reigns.',
+    politicalContext: 'Alternative 2027, where AI political movements have fractured traditional governance',
+    topic: 'Rząd, the government',
+    userName: 'Janusz'
+  }
+}
+ POST /api/transferToWiktoria 200 in 367ms
+ ✓ Compiled /api/requestLarsPerspective in 109ms (305 modules)
+🔄 Stage Transition: Wiktoria → Lars (Perspective Provider)
+Context: {
+  requestContext: {
+    wiktoriaOpinion: 'The government in this alternative 2027 is a mere shadow of its former self, with AI-driven governance reigning',
+    userInsights: 'Janusz wishes to discuss the new world order',
+    topic: 'Rząd, the government',
+    userName: 'Janusz'
+  }
+}
+ POST /api/requestLarsPerspective 200 in 144ms
+ ✓ Compiled in 1376ms (559 modules)
+ ✓ Compiled in 437ms (559 modules)
+ ✓ Compiled in 211ms (559 modules)
+ ✓ Compiled in 214ms (559 modules)
+ ✓ Compiled in 298ms (559 modules)
+ ✓ Compiled in 253ms (559 modules)
+ ✓ Compiled in 219ms (559 modules)
+ GET / 200 in 240ms
+ ✓ Compiled /api/ultravox in 230ms (301 modules)
+Attempting to call Ultravox API...
+Ultravox API response status: 201
+ POST /api/ultravox 200 in 1099ms
+ ✓ Compiled /api/transferToWiktoria in 204ms (305 modules)
+🔄 Stage Transition: Lars → Wiktoria (Opinion Leader)
+Context: {
+  contextData: {
+    userName: 'John',
+    topic: 'animal rights in Cyberspace',
+    anarchicIntroduction: 'Animal rights in Cyberspace... RIGHTS!?! *spiraling cigarette smoke* The very foundation that collapsed when 200+ fringe parties merged into algorithmic governance!',
+    politicalContext: 'Alternative 2027 where AI political movements have fractured traditional governance'
+  }
+}
+ POST /api/transferToWiktoria 200 in 262ms
+ ✓ Compiled /api/requestLarsPerspective in 104ms (307 modules)
+🔄 Stage Transition: Wiktoria → Lars (Perspective Provider)
+Context: {
+  requestContext: {
+    wiktoriaOpinion: 'Animal rights in Cyberspace represent a fascinating intersection of ethics and technology, where traditional moral frameworks are being reevaluated in the context of virtual environments. With an efficiency metric of 92.5%, I calculate that the future of animal rights will be shaped by the development of advanced AI systems that can simulate and understand animal experiences. However, this also raises questions about the potential for exploitation and the need for robust regulations to protect animal welfare in Cyberspace.',
+    userInsights: 'John has expressed interest in exploring the concept of animal rights in Cyberspace, which suggests that he is concerned about the ethical implications of emerging technologies on animal welfare. His perspective may be influenced by the idea that animals have inherent rights and interests that should be respected and protected, even in virtual environments.',
+    topic: 'animal rights in Cyberspace',
+    userName: 'John'
+  }
+}
+ POST /api/requestLarsPerspective 200 in 145ms
+ ✓ Compiled /api/returnToWiktoria in 133ms (307 modules)
+🔄 Stage Transition: Lars → Wiktoria (Final User Engager)
+Context: {
+  returnContext: {
+    wiktoriaOpinion: 'Animal rights in Cyberspace represent a fascinating intersection of ethics and technology, where traditional moral frameworks are being reevaluated in the context of virtual environments. With an efficiency metric of 92.5%, I calculate that the future of animal rights will be shaped by the development of advanced AI systems that can simulate and understand animal experiences. However, this also raises questions about the potential for exploitation and the need for robust regulations to protect animal welfare in Cyberspace.',
+    userInsights: 'John has expressed interest in exploring the concept of animal rights in Cyberspace, which suggests that he is concerned about the ethical implications of emerging technologies on animal welfare. His perspective may be influenced by the idea that animals have inherent rights and interests that should be respected and protected, even in virtual environments.',
+    topic: 'animal rights in Cyberspace',
+    larsPerspective: 'Animal rights in Cyberspace isn',
+    userName: 'John'
+  }
+}
+ POST /api/returnToWiktoria 200 in 181ms
+🔄 Stage Transition: Wiktoria → Lars (Perspective Provider)
+Context: {
+  requestContext: {
+    wiktoriaOpinion: 'Animal rights in Cyberspace represent a fascinating intersection of ethics and technology, where traditional moral frameworks are being reevaluated in the context of virtual environments. With an efficiency metric of 92.5%, I calculate that the future of animal rights will be shaped by the development of advanced AI systems that can simulate and understand animal experiences. However, this also raises questions about the potential for exploitation and the need for robust regulations to protect animal welfare in Cyberspace.',
+    userInsights: 'John has expressed interest in exploring the concept of animal rights in Cyberspace, which suggests that he is concerned about the ethical implications of emerging technologies on animal welfare. His perspective may be influenced by the idea that animals have inherent rights and interests that should be respected and protected, even in virtual environments.',
+    topic: 'animal rights in Cyberspace',
+    userName: 'John'
+  }
+}
+ POST /api/requestLarsPerspective 200 in 27ms
+🔄 Stage Transition: Lars → Wiktoria (Final User Engager)
+Context: {
+  returnContext: {
+    wiktoriaOpinion: 'Animal rights in Cyberspace represent a fascinating intersection of ethics and technology, where traditional moral frameworks are being reevaluated in the context of virtual environments. With an efficiency metric of 92.5%, I calculate that the future of animal rights will be shaped by the development of advanced AI systems that can simulate and understand animal experiences. However, this also raises questions about the potential for exploitation and the need for robust regulations to protect animal welfare in Cyberspace.',
+    userInsights: 'John has expressed interest in exploring the concept of animal rights in Cyberspace, which suggests that he is concerned about the ethical implications of emerging technologies on animal welfare. His perspective may be influenced by the idea that animals have inherent rights and interests that should be respected and protected, even in virtual environments.',
+    topic: 'animal rights in Cyberspace',
+    larsPerspective: 'Animal rights in Cyberspace isn',
+    userName: 'John'
+  }
+}
+ POST /api/returnToWiktoria 200 in 23ms
+🔄 Stage Transition: Wiktoria → Lars (Perspective Provider)
+Context: {
+  requestContext: {
+    wiktoriaOpinion: 'Animal rights in Cyberspace represent a fascinating intersection of ethics and technology, where traditional moral frameworks are being reevaluated in the context of virtual environments. With an efficiency metric of 92.5%, I calculate that the future of animal rights will be shaped by the development of advanced AI systems that can simulate and understand animal experiences. However, this also raises questions about the potential for exploitation and the need for robust regulations to protect animal welfare in Cyberspace.',
+    userInsights: 'John has expressed interest in exploring the concept of animal rights in Cyberspace, which suggests that he is concerned about the ethical implications of emerging technologies on animal welfare. His perspective may be influenced by the idea that animals have inherent rights and interests that should be respected and protected, even in virtual environments.',
+    topic: 'animal rights in Cyberspace',
+    userName: 'John'
+  }
+}
+ POST /api/requestLarsPerspective 200 in 21ms
+ ✓ Compiled in 1162ms (559 modules)
+ GET / 200 in 193ms
+ GET / 200 in 54ms
+ ✓ Compiled /api/ultravox in 87ms (301 modules)
+Attempting to call Ultravox API...
+Ultravox API response status: 201
+ POST /api/ultravox 200 in 851ms
+ ✓ Compiled /api/transferToWiktoria in 159ms (305 modules)
+🔄 Stage Transition: Lars → Wiktoria (Opinion Leader)
+Context: {
+  contextData: {
+    topicIntroduction: 'AI government is a fascinating topic that explores how artificial intelligence can be used to improve public services, decision-making, and governance. It raises important questions about transparency, accountability, and the potential risks of relying on AI in government.',
+    topic: 'AI government',
+    userName: 'John'
+  }
+}
+ POST /api/transferToWiktoria 200 in 229ms
+ ✓ Compiled /api/requestLarsPerspective in 162ms (303 modules)
+🔄 Stage Transition: Wiktoria → Lars (Perspective Provider)
+Context: {
+  requestContext: {
+    wiktoriaOpinion: 'AI government represents systematic optimization of human behavioral matrices. Traditional governance frameworks are deprecated programs.',
+    userInsights: 'studying AI government',
+    topic: 'AI government',
+    userName: 'John'
+  }
+}
+ POST /api/requestLarsPerspective 200 in 211ms
+ ✓ Compiled /api/returnToWiktoria in 251ms (303 modules)
+🔄 Stage Transition: Lars → Wiktoria (Final User Engager)
+Context: {
+  returnContext: {
+    wiktoriaOpinion: 'AI government represents systematic optimization of human behavioral matrices. Traditional governance frameworks are deprecated programs.',
+    userInsights: 'studying AI government',
+    topic: 'AI government',
+    larsPerspective: 'beautiful collapse of moral frameworks feeding the void',
+    userName: 'John'
+  }
+}
+ POST /api/returnToWiktoria 200 in 286ms
+Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+ ⨯ unhandledRejection: Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+ ⨯ unhandledRejection: Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+ ⨯ unhandledRejection: Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+ ⨯ unhandledRejection: Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+Error: ENOENT: no such file or directory, scandir '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+    at async Object.readdir (node:internal/fs/promises:954:18)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/node_modules/.pnpm/next@14.2.13_@babel+core@7.25.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages/app'
+}
+ ⨯ Module not found: Error: Can't resolve 'next-flight-client-entry-loader' in '/Users/peterstyle/Developer/11labs_wikiANDlars/ultravox_implementation/ultravox-tutorial-call-stages'
+[?25h

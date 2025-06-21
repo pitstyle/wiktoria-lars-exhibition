@@ -1,6 +1,6 @@
 import { DemoConfig, SelectedTool, ParameterLocation } from "@/lib/types";
 import { LarsCharacterBase } from "./characters/lars-character-base";
-import { WiktoriaCharacterBase } from "./characters/wiktoria-character-base";
+import { WiktoriaCharacterBase } from "./characters/wiktoria-character-enhance2";
 
 // Webhook endpoints URL - automatically uses deployment URL
 const toolsBaseUrl = process.env.VERCEL_URL 
