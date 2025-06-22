@@ -4,7 +4,7 @@ import { StorytellingCharacter } from "./character-types";
  * LEADER LARS 3.0  —  full-throttle core description
  * (All text blocks below are fed verbatim into the LLM.)
  */
-export const LarsCharacterBase: StorytellingCharacter = {
+export const LarsCharacterBase = {
   /** ------------------------------------------------------------------
    *  CORE IDENTITY  (quick one-pager that the model always sees)
    *  ------------------------------------------------------------------ */
