@@ -5,7 +5,7 @@ import { LarsCharacterBase } from "./characters/lars-character-base";
 import { WiktoriaCharacterBase } from "./characters/wiktoria-character-enhance2";
 
 // ────────────────────────────────────────────────────────────
-//  Runtime constants
+//  Runtime constants (Force refresh v2)
 // ────────────────────────────────────────────────────────────
 const toolsBaseUrl = "https://wiktoria-lars-app.vercel.app";
 
