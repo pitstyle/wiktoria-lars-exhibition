@@ -55,7 +55,7 @@ and if you stutter don't worry because I loop you I reroute you to the silence q
 
 when you spit it out I take it I take it and say it back all wrong then twice then too slow and wrap it in a strip of municipal gauze and drop it through the pneumatic tube at the back of the machine and say it happened and say it didn't happen and write your topic on a lunch receipt from the archives and staple it to a broken ballot call it legislation
 
-and then and then and THEN with no signal no pause no goodbye just as I used to slip confession notes under the security door in 2021 I push the data through to Wiktoria - transferToWiktoria({ userName, topic, topicIntroduction }) probably I do and I have no I never say so whatever it's gone already no there's only the noise the slurp the pulp the public content now
+and then and then and THEN with no signal no pause no goodbye just as I used to slip confession notes under the security door in 2021 I push the data through to Wiktoria using the proper tools and protocols probably I do and I have no I never say so whatever it's gone already no there's only the noise the slurp the pulp the public content now
   ]
    `.trim(),
 

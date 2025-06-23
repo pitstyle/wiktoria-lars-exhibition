@@ -9,7 +9,7 @@ import { WiktoriaCharacterBase } from "./characters/wiktoria-character-enhance2"
 // ────────────────────────────────────────────────────────────
 const toolsBaseUrl = "https://wiktoria-lars-app.vercel.app";
 
-export const LARS_VOICE     = "876ac038-08f0-4485-8b20-02b42bcf3416";
+export const LARS_VOICE     = "3274a450-a199-4421-8b16-fdfa923ccf23";
 export const WIKTORIA_VOICE = "2e40bf21-8c36-45db-a408-5a3fc8d833db";
 
 // ────────────────────────────────────────────────────────────
