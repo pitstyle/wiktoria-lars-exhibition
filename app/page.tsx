@@ -264,7 +264,13 @@ export default function Home() {
                                 {transcript.speaker === 'user' ? (
                                   <p className="mb-4 text-red-500"><span><strong>USER:</strong> {transcript.text}</span></p>
                                 ) : (
-                                  <p className="mb-4"><span>{transcript.text}</span></p>
+                                  <p className="mb-4 text-black">
+                                    <span>
+                                      <strong className="text-red-500">
+                                        {currentAgent === 'lars' ? 'LEADER LARS:' : 'WIKTORIA CUKT 2.0:'}
+                                      </strong> {transcript.text}
+                                    </span>
+                                  </p>
                                 )}
                               </div>
                             ))}

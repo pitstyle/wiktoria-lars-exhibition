@@ -6,9 +6,9 @@
 - **Vercel Dashboard**: https://vercel.com/pitstyles-projects/wiktoria-lars-app
 
 ## Current Version
-- **Branch**: v1.1-character-architecture
-- **Version**: v1.1 Character Architecture
-- **Deployment Date**: 2025-06-20
+- **Branch**: v1.4-test
+- **Version**: v1.4-test Friend Code Integration & System Fixes
+- **Deployment Date**: 2025-06-22
 
 ## Architecture
 - **Character Base System**: Separated character personalities in dedicated files

@@ -259,9 +259,11 @@ export const larsWiktoriaEnhancedConfig: DemoConfig = {
   callConfig: {
     systemPrompt: getLarsCollectorPrompt(),
     model: "fixie-ai/ultravox-70B",
-    languageHint: "en",
+    languageHint: "auto",
     voice: LARS_VOICE, // Start with Lars (Mathias - Danish)
     temperature: 0.4,
+    maxDuration: "600s",
+    timeExceededMessage: "Political performance time limit reached. Thank you for participating in our exhibition. Please call again to explore new political realities!",
     selectedTools: selectedTools
   }
 };
