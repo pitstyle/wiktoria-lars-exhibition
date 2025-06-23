@@ -1,36 +1,59 @@
+// File: app/api/changeStage/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
-import { stageMap, StageKey } from "@/app/lib/stageMap";
+import { stageMap } from "@/app/lars-wiktoria-enhanced-config";
+
+interface IncomingBody {
+  contextData: Record<string, any>;
+  nextStage: "collect" | "reflect" | "dialogue";
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const { contextData, nextStage } = await req.json();
+    const { contextData, nextStage } = (await req.json()) as IncomingBody;
     
     console.log(`🔄 Stage Transition: → ${nextStage}`);
     console.log(`Context Data:`, contextData);
-    
+
     // Validate stage exists
-    if (!stageMap[nextStage as StageKey]) {
+    const stageDef = (stageMap as any)[nextStage];
+    if (!stageDef) {
       console.error(`❌ Unknown stage: ${nextStage}`);
-      return NextResponse.json({ error: `Unknown stage: ${nextStage}` }, { status: 400 });
+      return NextResponse.json(
+        { error: `Unknown stage "${nextStage}"` },
+        { status: 400 }
+      );
     }
-    
-    const stage = stageMap[nextStage as StageKey];
-    
-    // Build response body
-    const responseBody = {
-      systemPrompt: stage.prompt,
-      voice: stage.voice,
-      selectedTools: stage.selectedTools,
-      toolResultText: getStageTransitionMessage(nextStage, contextData)
-    };
-    
+
+    // Flip speaker on each dialogue turn
+    let speaker: "lars" | "wiktoria" = "lars";
+    if (nextStage === "dialogue") {
+      const last = contextData.lastSpeaker as string;
+      speaker = last === "lars" ? "wiktoria" : "lars";
+      contextData.lastSpeaker = speaker;
+      console.log(`🎭 Dialogue speaker switching: ${last} → ${speaker}`);
+    }
+
+    // Get stage configuration
+    const prompt = nextStage === "dialogue"
+      ? stageDef.promptFn(speaker)
+      : stageDef.promptFn();
+    const voice = nextStage === "dialogue"
+      ? stageDef.voiceFn(speaker)
+      : stageDef.voiceFn();
+
     console.log(`✅ Stage transition successful: ${nextStage}`);
-    console.log(`Voice ID: ${stage.voice}`);
-    console.log(`Tools count: ${stage.selectedTools.length}`);
-    
-    const response = NextResponse.json(responseBody);
+    console.log(`Voice ID: ${voice}`);
+    console.log(`Tools count: ${stageDef.selectedTools.length}`);
+
+    const response = NextResponse.json({
+      systemPrompt:    prompt,
+      voice,
+      selectedTools:   stageDef.selectedTools,
+      initialMessages: [ { role: "SYSTEM", text: JSON.stringify(contextData) } ]
+    });
+
     response.headers.set("X-Ultravox-Response-Type", "new-stage");
-    
     return response;
     
   } catch (error) {
@@ -38,22 +61,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-function getStageTransitionMessage(stage: string, context: any): string {
-  const { userName, topic } = context;
-  
-  switch (stage) {
-    case "wiktoriaDebate":
-      return `(Wiktoria joining conversation) System activated. Hello ${userName}! I'm Wiktoria Cukt, AI President of Poland. Ready to analyze ${topic} with systematic technical precision.`;
-      
-    case "larsPerspective":
-      return `(Lars injecting chaos variables) Wiktoria's systematic request received!?! Time for democratic void synthesis on ${topic}...`;
-      
-    case "wiktoriaEngage":
-      return `(Wiktoria returning with enhanced context) System update complete. I'm ready to continue our discussion about ${topic} with insights from both systematic technical culture and Lars's anarchic democratic chaos.`;
-      
-    default:
-      return `(Stage transition to ${stage})`;
-  }
-}
-
