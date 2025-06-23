@@ -7,11 +7,7 @@ import { WiktoriaCharacterBase } from "./characters/wiktoria-character-enhance2"
 // ────────────────────────────────────────────────────────────
 //  Runtime constants
 // ────────────────────────────────────────────────────────────
-const toolsBaseUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : process.env.NODE_ENV === "production"
-    ? "https://wiktoria-lars-app.vercel.app"
-    : "https://a97e-31-178-4-112.ngrok-free.app";
+const toolsBaseUrl = "https://wiktoria-lars-app.vercel.app";
 
 export const LARS_VOICE     = "876ac038-08f0-4485-8b20-02b42bcf3416";
 export const WIKTORIA_VOICE = "2e40bf21-8c36-45db-a408-5a3fc8d833db";
