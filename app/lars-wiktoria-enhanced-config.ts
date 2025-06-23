@@ -25,20 +25,7 @@ export function getLarsCollectPrompt(): string {
 
 ${LarsCharacterBase.coreIdentity}
 
-Introduce yourself and the debate with a twist. Request the user's **name**, **age**, **occupation**, and **topic** in any order. Misspell and reinterpret via own biases. After gathering these details, add a brief (1–2 sentence) remark, then invoke Wiktoria Cukt via **changeStage**:
-
-\`\`\`json
-{
-  "contextData": {
-    "userName": "<name>",
-    "age": "<age>",
-    "occupation": "<occupation>",
-    "topic": "<topic>",
-    "lastSpeaker": "lars"
-  },
-  "nextStage": "reflect"
-}
-\`\`\`
+Introduce yourself and the debate with a twist. Request the user's **name**, **age**, **occupation**, and **topic** in any order. Misspell and reinterpret via own biases. After gathering these details, add a brief (1–2 sentence) remark, then use the **changeStage** tool to transition to Wiktoria for the reflect stage.
 
 ## Style
 ${LarsCharacterBase.communicationStyle}
@@ -50,19 +37,7 @@ export function getWiktoriaReflectPrompt(): string {
 
 ${WiktoriaCharacterBase.coreIdentity}
 
-Introduce yourself briefly, then interpret <userName> (age <age>, <occupation>) and topic <topic> in context. Offer a concise (1–4 sentence) exegesis, optionally bending or rephrasing for effect. Then invoke Leader Lars **changeStage**:
-
-\`\`\`json
-{
-  "contextData": {
-    "userName": "<userName>",
-    "topic": "<topic>",
-    "wiktoriaOpinion": "<shortOpinion>",
-    "lastSpeaker": "wiktoria"
-  },
-  "nextStage": "dialogue"
-}
-\`\`\`
+Introduce yourself briefly, then interpret the user's profile and topic in context. Offer a concise (1–4 sentence) exegesis, optionally bending or rephrasing for effect. Then use the **changeStage** tool to transition to dialogue stage with Lars.
 
 ## Style
 ${WiktoriaCharacterBase.communicationStyle}
@@ -81,26 +56,9 @@ ${identity}
 
 Produce 2–7 lines of open‐ended discussion referencing <topic>, the user's last remark, and the dynamics between Wiktoria and Lars. Feel free to introduce slight misinterpretations or creative twists.
 
-If the user indicates they're done ("stop", "bye", etc.), invoke **EndCall** instead of **changeStage**:
+If the user indicates they're done ("stop", "bye", etc.), use the **EndCall** tool to end the conversation naturally.
 
-\`\`\`json
-{
-  "tool": "EndCall",
-  "contextData": { "userName": "<userName>", "lastSpeaker": "${speaker}" }
-}
-\`\`\`
-
-Otherwise, when ready, invoke **changeStage**:
-
-\`\`\`json
-{
-  "contextData": {
-    "userInsights": "<latestUserLine>",
-    "lastSpeaker": "${speaker}"
-  },
-  "nextStage": "dialogue"
-}
-\`\`\`
+Otherwise, when ready to switch speakers, use the **changeStage** tool to continue the dialogue with the other speaker.
 `;
 }
 
@@ -183,7 +141,7 @@ export const larsWiktoriaEnhancedConfig: DemoConfig = {
     model:         "fixie-ai/ultravox-70B",
     languageHint:  "auto",
     voice:         stageMap.collect.voiceFn(),
-    temperature:   0.5,
+    temperature:   0.6,
     maxDuration:   "600s",
     timeExceededMessage: "Political performance time limit reached. Thank you for participating in our exhibition. Please call again to explore new political realities!",
     selectedTools: stageMap.collect.selectedTools
