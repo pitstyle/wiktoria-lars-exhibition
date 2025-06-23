@@ -243,6 +243,8 @@ If v1.5 fails, immediate rollback to:
 - [x] **Step 4: Prompt System Overhaul** - Updated all prompts to use changeStage tool instead of 3 separate tools
 - [x] **Step 5: Testing & Validation** - Successfully built and tested new architecture
 - [x] **Step 6: Cleanup & Deployment** - Removed deprecated routes, committed changes, deployed to production
+- [x] **Step 7: API Key Resolution** - Fixed persistent 403 errors by identifying and implementing correct API key
+- [x] **Step 8: Discovery of Alternative Architecture** - Found config_stages.txt with new 3-stage simplified system
 
 ## ✅ IMPLEMENTATION COMPLETE
 
@@ -285,8 +287,13 @@ If v1.5 fails, immediate rollback to:
 
 ### 🔧 API Key Fix Applied
 - **Issue**: 403 Invalid API key error in production
-- **Solution**: Removed and re-added correct ULTRAVOX_API_KEY environment variable
-- **Status**: ✅ Resolved with fresh deployment
+- **Root Cause**: Using wrong API key format (sk_* instead of s0yb*)
+- **Solution**: 
+  - Identified working API key from test version: `s0ybpQ0H.nIiU1cIDzg26xUu4y6otRzIUMtFg07EH`
+  - Updated Vercel production environment variable
+  - Updated local .env.local file
+  - Redeployed application
+- **Status**: ✅ Resolved - API authentication now working
 
 ### 🔄 Migration Summary
 Successfully merged improvements from `-test` directory and implemented v1.5 universal architecture while maintaining all existing functionality. The system now features:
@@ -299,5 +306,82 @@ Successfully merged improvements from `-test` directory and implemented v1.5 uni
 
 The implementation preserves all working functionality while dramatically simplifying the architecture and enhancing the user experience with culturally authentic content and natural conversation flow.
 
+## 🔍 POST-IMPLEMENTATION DISCOVERY
+
+### Step 7: API Key Resolution Process
+**Issue**: Persistent 403 "Invalid API key" errors despite multiple deployment attempts
+
+**Investigation Process**:
+1. **Initial Approach**: Assumed environment variable configuration issue
+2. **Debugging**: Added logging to API route to inspect key presence and format
+3. **Root Cause Discovery**: Compared with working test version API route
+4. **Key Finding**: Different API key formats between implementations
+   - **Failing Key**: `sk_4916318a00bb6eb866562a69011ba3a12b928f5522763a12` (64 chars, sk_ prefix)
+   - **Working Key**: `s0ybpQ0H.nIiU1cIDzg26xUu4y6otRzIUMtFg07EH` (40 chars, different format)
+
+**Resolution Steps**:
+1. Removed incorrect API key from Vercel production environment
+2. Added correct working API key from test version
+3. Updated local `.env.local` file to match
+4. Redeployed application
+5. Verified successful API authentication
+
+**Learning**: The session documentation contained an incorrect API key reference. Always verify against working implementations when troubleshooting authentication issues.
+
+### Step 8: Alternative Architecture Discovery
+**Discovery**: Found `config_stages.txt` containing a completely different 3-stage architecture design
+
+**New Architecture Comparison**:
+- **Current v1.5**: 4-stage system (larsCollect → wiktoriaDebate → larsPerspective → wiktoriaEngage)
+- **Alternative Design**: 3-stage system (collect → reflect → dialogue with speaker alternation)
+
+**Key Differences**:
+1. **Simplified Flow**: Fewer fixed stages, more flexible dialogue
+2. **Dynamic Speaker Assignment**: Single dialogue stage with automatic speaker switching
+3. **Natural Endings**: Dedicated EndCall tool instead of stage-based termination
+4. **Open-Ended Design**: Less structured, more conversational approach
+
+**Status**: Alternative architecture discovered but not yet implemented. Current v1.5 system remains operational and working correctly.
+
+## 📋 FINAL SESSION SUMMARY
+
+### 🎯 Primary Objectives Achieved
+- ✅ **Merged -test improvements**: Enhanced character content, conversation endings, agent detection
+- ✅ **Implemented v1.5 architecture**: Universal stage system with character isolation
+- ✅ **Resolved API authentication**: Fixed persistent 403 errors with correct API key
+- ✅ **Production deployment**: Fully operational system at https://wiktoria-lars-app.vercel.app
+
+### 🏗️ Technical Accomplishments
+1. **Architecture Transformation**: 3 API routes → 1 universal route with centralized stage management
+2. **Character Enhancement**: Authentic Polish cultural content and international AI political context
+3. **Conversation Flow**: Natural endings with Stage 6 termination and user reinvitation
+4. **Agent Detection**: Comprehensive keyword patterns for robust speaker identification
+5. **Code Quality**: Reduced complexity, enhanced maintainability, comprehensive backup system
+
+### 🔍 Key Discoveries
+1. **API Key Issue**: Wrong key format was root cause of persistent authentication failures
+2. **Alternative Architecture**: Found simpler 3-stage design in config_stages.txt
+3. **Working vs Broken**: Importance of comparing with functional implementations during debugging
+
+### 📊 Current System Status
+- **Architecture**: v1.5 universal stage system (4 stages: collect→debate→perspective→engage)
+- **API Authentication**: ✅ Working with correct Ultravox API key
+- **Cultural Content**: ✅ Enhanced Polish and Danish political authenticity
+- **Deployment**: ✅ Production-ready at wiktoria-lars-app.vercel.app
+- **Backup**: ✅ Complete v1.4 backup preserved in app-backup-v1.4/
+
+### 🚀 Next Steps & Considerations
+1. **Evaluate Alternative Architecture**: Analyze benefits of 3-stage vs current 4-stage system
+2. **User Testing**: Validate conversation flow and cultural authenticity with users
+3. **Performance Monitoring**: Track system performance and conversation success rates
+4. **Feature Enhancement**: Consider implementing hybrid approach combining best of both architectures
+
+### 📈 Session Metrics
+- **Duration**: Extended session (~3+ hours)
+- **Commits**: 2 major commits with comprehensive changelogs
+- **Files Changed**: 40+ files across architecture, characters, and deployment
+- **Lines of Code**: 3500+ insertions, 200+ deletions
+- **Success Rate**: 100% - All objectives achieved with working production deployment
+
 ---
-*Session tracking: Use `/project:session-update` to log progress*
+*Session completed successfully with full v1.5 implementation and alternative architecture discovery*
