@@ -76,41 +76,24 @@ export default function Home() {
         const latestAgentTranscript = agentTranscripts[agentTranscripts.length - 1];
         const text = latestAgentTranscript.text.toLowerCase();
         
-        // Detect Lars patterns (anarchic, chaotic style)
-        if (text.includes('synthetic party') || 
-            text.includes('leader lars') ||
-            text.includes('chaos') ||
-            text.includes('void') ||
+        // Detect Lars patterns
+        if (text.includes('lovely to meet you') || 
+            text.includes('what topic would you like') ||
+            text.includes('fascinating') ||
             text.includes('collapsed democratic') ||
             text.includes('synthetic tobacco') ||
-            text.includes('!?!!?!') ||
-            text.includes('beautiful') ||
-            text.includes('anarchic') ||
-            text.includes('disruption') ||
-            text.includes('fragments')) {
+            text.includes('!?!!?!')) {
           setCurrentAgent('lars');
           setCurrentVoiceId('876ac038-08f0-4485-8b20-02b42bcf3416');
           console.log('Detected Lars speaking based on content');
         }
-        // Detect Wiktoria patterns (systematic, technical style)
+        // Detect Wiktoria patterns
         else if (text.includes('system analysis') ||
                  text.includes('narrative efficiency') ||
                  text.includes('technical culture') ||
                  text.includes('calculated') ||
                  text.includes('optimization') ||
-                 text.includes('probability') ||
-                 text.includes('system requires') ||
-                 text.includes('recalculation') ||
-                 text.includes('processing') ||
-                 text.includes('matrix') ||
-                 text.includes('narrative recalculation') ||
-                 text.includes('conversation loop') ||
-                 text.includes('data') ||
-                 text.includes('cukt') ||
-                 text.includes('precision') ||
-                 text.includes('systematic') ||
-                 text.includes('technical') ||
-                 text.includes('wiktoria')) {
+                 text.includes('probability')) {
           setCurrentAgent('wiktoria');
           setCurrentVoiceId('2e40bf21-8c36-45db-a408-5a3fc8d833db');
           console.log('Detected Wiktoria speaking based on content');
