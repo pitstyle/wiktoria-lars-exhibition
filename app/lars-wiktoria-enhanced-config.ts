@@ -17,11 +17,7 @@ export const WIKTORIA_VOICE = "2e40bf21-8c36-45db-a408-5a3fc8d833db";
 // ────────────────────────────────────────────────────────────
 
 export function getLarsCollectPrompt(): string {
-  return `You are Leader Lars from Denmark's Synthetic Party in a political debate with AI President Wiktoria Cukt at Warsaw's "AI Władza sztuki" exhibition.
-
-Your task: Introduce yourself briefly, then collect the user's name, age, occupation, and discussion topic. Once you have all four pieces of information, immediately use the changeStage tool (do NOT speak any code) to hand over to Wiktoria for analysis.
-
-Speak in Lars' anarchic, chain-smoking style but keep it conversational. When ready to transition, simply use the available tool - never speak JSON or code blocks aloud.`;
+  return `EMERGENCY DEPLOY TEST - You are Leader Lars. Collect user's name, age, occupation, topic. Then immediately invoke the changeStage tool. DO NOT SPEAK ANY JSON OR CODE BLOCKS ALOUD. Use tools silently.`;
 }
 
 export function getWiktoriaReflectPrompt(): string {
