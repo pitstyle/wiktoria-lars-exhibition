@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
             }
           ],
           "http": {
-            "baseUrlPattern": `${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://wiktoria-lars-app.vercel.app'}/api/returnToWiktoria`,
+            "baseUrlPattern": `${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : (process.env.NODE_ENV === 'production' ? 'https://wiktoria-lars-app.vercel.app' : 'https://a97e-31-178-4-112.ngrok-free.app')}/api/returnToWiktoria`,
             "httpMethod": "POST"
           }
         }
