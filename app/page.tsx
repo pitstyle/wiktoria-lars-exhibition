@@ -70,66 +70,72 @@ export default function Home() {
       
       console.log('🔍 All transcript speakers in this batch:', transcripts.map(t => `${t.speaker}: "${t.text.substring(0, 20)}..."`));
       
-      // Get the latest agent transcript to determine current agent
+      // ENHANCED: Check ALL transcripts for agent markers, not just agent ones
+      transcripts.forEach((transcript, index) => {
+        const text = transcript.text;
+        
+        // Check for explicit agent markers in ANY transcript (including tool results)
+        if (text.includes('[AGENT: LARS]')) {
+          setCurrentAgent('lars');
+          setCurrentVoiceId('876ac038-08f0-4485-8b20-02b42bcf3416');
+          console.log('🏷️ Detected LARS via [AGENT: LARS] marker in transcript');
+        } else if (text.includes('[AGENT: WIKTORIA]')) {
+          setCurrentAgent('wiktoria');
+          setCurrentVoiceId('2e40bf21-8c36-45db-a408-5a3fc8d833db');
+          console.log('🏷️ Detected WIKTORIA via [AGENT: WIKTORIA] marker in transcript');
+        }
+      });
+      
+      // Get the latest agent transcript for content-based detection as fallback
       const agentTranscripts = transcripts.filter(t => t.speaker === 'agent');
       
       if (agentTranscripts.length > 0) {
         const latestAgentTranscript = agentTranscripts[agentTranscripts.length - 1];
         const text = latestAgentTranscript.text;
+        const lowerText = text.toLowerCase();
         
-        // PRIORITY 1: Check for explicit agent markers first
-        if (text.includes('[AGENT: LARS]')) {
+        // Enhanced content-based detection with Lars character patterns
+        if (lowerText.includes('synthetic party') || 
+            lowerText.includes('leader lars') ||
+            lowerText.includes('chain-smoking') ||
+            lowerText.includes('gravel-voiced') ||
+            lowerText.includes('anarchic') ||
+            lowerText.includes('bureaucracy') ||
+            lowerText.includes('citizen') ||
+            lowerText.includes('lars here') ||
+            lowerText.includes('coughs') ||
+            lowerText.includes('puffs') ||
+            lowerText.includes('chuckles') ||
+            lowerText.includes('winks') ||
+            lowerText.includes('taps pen') ||
+            lowerText.includes('spit it out') ||
+            text.includes('*coughs*') ||
+            text.includes('*chuckles*') ||
+            text.includes('*winks*')) {
           setCurrentAgent('lars');
           setCurrentVoiceId('876ac038-08f0-4485-8b20-02b42bcf3416');
-          console.log('🏷️ Detected LARS via explicit marker in transcript');
-        } else if (text.includes('[AGENT: WIKTORIA]')) {
+          console.log('🔍 Detected Lars speaking based on character patterns');
+        }
+        // Enhanced Wiktoria detection with her specific patterns
+        else if (lowerText.includes('ai president') ||
+                 lowerText.includes('president of poland') ||
+                 lowerText.includes('wiktoria cukt') ||
+                 lowerText.includes('sharp, dignified') ||
+                 lowerText.includes('jako prezydentka') ||
+                 lowerText.includes('legislative') ||
+                 lowerText.includes('executive') ||
+                 lowerText.includes('ustawodawczym') ||
+                 lowerText.includes('wykonawczym') ||
+                 lowerText.includes('task force') ||
+                 lowerText.includes('comprehensive plan') ||
+                 lowerText.includes('public-private') ||
+                 lowerText.includes('sharp tone') ||
+                 text.includes('*smirks*') ||
+                 text.includes('*eyes narrow*') ||
+                 text.includes('*leans in*')) {
           setCurrentAgent('wiktoria');
           setCurrentVoiceId('2e40bf21-8c36-45db-a408-5a3fc8d833db');
-          console.log('🏷️ Detected WIKTORIA via explicit marker in transcript');
-        }
-        // PRIORITY 2: Fallback to content analysis
-        else {
-          const lowerText = text.toLowerCase();
-          
-          // Detect Lars patterns (anarchic, chaotic style)
-          if (lowerText.includes('synthetic party') || 
-              lowerText.includes('leader lars') ||
-              lowerText.includes('chaos') ||
-              lowerText.includes('void') ||
-              lowerText.includes('collapsed democratic') ||
-              lowerText.includes('synthetic tobacco') ||
-              lowerText.includes('!?!!?!') ||
-              lowerText.includes('beautiful') ||
-              lowerText.includes('anarchic') ||
-              lowerText.includes('disruption') ||
-              lowerText.includes('fragments')) {
-            setCurrentAgent('lars');
-            setCurrentVoiceId('876ac038-08f0-4485-8b20-02b42bcf3416');
-            console.log('🔍 Detected Lars speaking based on content patterns');
-          }
-          // Detect Wiktoria patterns (systematic, technical style)
-          else if (lowerText.includes('system analysis') ||
-                   lowerText.includes('narrative efficiency') ||
-                   lowerText.includes('technical culture') ||
-                   lowerText.includes('calculated') ||
-                   lowerText.includes('optimization') ||
-                   lowerText.includes('probability') ||
-                   lowerText.includes('system requires') ||
-                   lowerText.includes('recalculation') ||
-                   lowerText.includes('processing') ||
-                   lowerText.includes('matrix') ||
-                   lowerText.includes('narrative recalculation') ||
-                   lowerText.includes('conversation loop') ||
-                   lowerText.includes('data') ||
-                   lowerText.includes('cukt') ||
-                   lowerText.includes('precision') ||
-                   lowerText.includes('systematic') ||
-                   lowerText.includes('technical') ||
-                   lowerText.includes('wiktoria')) {
-            setCurrentAgent('wiktoria');
-            setCurrentVoiceId('2e40bf21-8c36-45db-a408-5a3fc8d833db');
-            console.log('🔍 Detected Wiktoria speaking based on content patterns');
-          }
+          console.log('🔍 Detected Wiktoria speaking based on character patterns');
         }
       }
     }
@@ -138,40 +144,67 @@ export default function Home() {
   const handleDebugMessage = useCallback((debugMessage: UltravoxExperimentalMessageEvent) => {
     setCallDebugMessages(prevMessages => [...prevMessages, debugMessage]);
     
-    // Debug logging for voice issues
+    // Debug logging for ALL voice-related events
     console.log('🔍 Debug message type:', debugMessage.type);
     console.log('🔍 Debug message:', debugMessage);
     
     // Get message text for analysis
     const messageText = JSON.stringify(debugMessage);
     
-    // Check for voice-related issues and track them
+    // ENHANCED voice issue detection - catch voice fading, cutting off, interruptions
     if (debugMessage.type === 'audio_stopped' || 
         debugMessage.type === 'audio_interrupted' || 
         debugMessage.type === 'audio_error' ||
         debugMessage.type === 'voice_error' ||
-        messageText.includes('audio') ||
-        messageText.includes('voice')) {
+        debugMessage.type === 'connection_lost' ||
+        debugMessage.type === 'stream_error' ||
+        debugMessage.type === 'audio_timeout' ||
+        debugMessage.type === 'voice_timeout' ||
+        debugMessage.type === 'synthesis_error' ||
+        debugMessage.type === 'playback_error' ||
+        // Catch any message with voice/audio issues in content
+        messageText.toLowerCase().includes('voice stopped') ||
+        messageText.toLowerCase().includes('audio stopped') ||
+        messageText.toLowerCase().includes('voice interrupted') ||
+        messageText.toLowerCase().includes('audio interrupted') ||
+        messageText.toLowerCase().includes('synthesis failed') ||
+        messageText.toLowerCase().includes('playback failed')) {
       
-      const issueDescription = `${new Date().toLocaleTimeString()}: ${debugMessage.type} - ${JSON.stringify(debugMessage)}`;
+      const issueDescription = `${new Date().toLocaleTimeString()}: ${debugMessage.type} - Voice issue detected`;
       console.log('⚠️ VOICE ISSUE DETECTED:', debugMessage.type);
       console.log('⚠️ Voice issue details:', debugMessage);
       
       setVoiceIssues(prev => [...prev, issueDescription].slice(-10)); // Keep last 10 issues
     }
     
-    // Check for explicit agent markers in tool results
+    // ENHANCED agent detection - multiple detection methods
+    // Method 1: Tool result messages with [AGENT: NAME] markers
     if (messageText.includes('[AGENT: LARS]')) {
-      console.log('🏷️ Explicit LARS marker detected');
+      console.log('🏷️ LARS detected via [AGENT: LARS] marker');
       setCurrentAgent('lars');
       setCurrentVoiceId('876ac038-08f0-4485-8b20-02b42bcf3416');
     } else if (messageText.includes('[AGENT: WIKTORIA]')) {
-      console.log('🏷️ Explicit WIKTORIA marker detected');
+      console.log('🏷️ WIKTORIA detected via [AGENT: WIKTORIA] marker');
       setCurrentAgent('wiktoria');
       setCurrentVoiceId('2e40bf21-8c36-45db-a408-5a3fc8d833db');
     }
     
-    // Track voice changes to determine current agent
+    // Method 2: Tool calls by name
+    if (messageText.includes('transferToWiktoria') || 
+        messageText.includes('returnToWiktoria') ||
+        messageText.includes('"transferToWiktoria"') ||
+        messageText.includes('"returnToWiktoria"')) {
+      console.log('🏷️ WIKTORIA detected via transfer tool call');
+      setCurrentAgent('wiktoria');
+      setCurrentVoiceId('2e40bf21-8c36-45db-a408-5a3fc8d833db');
+    } else if (messageText.includes('requestLarsPerspective') ||
+               messageText.includes('"requestLarsPerspective"')) {
+      console.log('🏷️ LARS detected via perspective tool call');
+      setCurrentAgent('lars');
+      setCurrentVoiceId('876ac038-08f0-4485-8b20-02b42bcf3416');
+    }
+    
+    // Method 3: Voice changes
     if (debugMessage.type === 'voice_changed' && (debugMessage as any).voice?.voiceId) {
       const voiceId = (debugMessage as any).voice.voiceId;
       console.log('🎤 Voice changed to:', voiceId);
@@ -187,15 +220,17 @@ export default function Home() {
       }
     }
     
-    // Track tool calls that indicate agent transitions (fallback)
-    if (messageText.includes('transferToWiktoria') || messageText.includes('returnToWiktoria')) {
-      console.log('🔄 Detected transfer to Wiktoria (fallback)');
-      setCurrentAgent('wiktoria');
-      setCurrentVoiceId('2e40bf21-8c36-45db-a408-5a3fc8d833db');
-    } else if (messageText.includes('requestLarsPerspective')) {
-      console.log('🔄 Detected request for Lars perspective (fallback)');
-      setCurrentAgent('lars');
-      setCurrentVoiceId('876ac038-08f0-4485-8b20-02b42bcf3416');
+    // Method 4: Tool results and status changes
+    if (debugMessage.type === 'tool_result' || debugMessage.type === 'status_change') {
+      if (messageText.includes('Lars') && !messageText.includes('Wiktoria')) {
+        console.log('🏷️ LARS detected via tool result content');
+        setCurrentAgent('lars');
+        setCurrentVoiceId('876ac038-08f0-4485-8b20-02b42bcf3416');
+      } else if (messageText.includes('Wiktoria') && !messageText.includes('Lars')) {
+        console.log('🏷️ WIKTORIA detected via tool result content');
+        setCurrentAgent('wiktoria');
+        setCurrentVoiceId('2e40bf21-8c36-45db-a408-5a3fc8d833db');
+      }
     }
   }, []);
 
@@ -206,29 +241,30 @@ export default function Home() {
 
   const getCurrentAgentLabel = () => {
     console.log('🎯 Getting agent label - currentAgent:', currentAgent, 'currentVoiceId:', currentVoiceId);
+    console.log('🎯 Voice ID match check - Lars:', currentVoiceId === '876ac038-08f0-4485-8b20-02b42bcf3416', 'Wiktoria:', currentVoiceId === '2e40bf21-8c36-45db-a408-5a3fc8d833db');
     
     const activeVoiceId = currentVoiceId;
     
     // Primary check: voice ID
     if (activeVoiceId === '876ac038-08f0-4485-8b20-02b42bcf3416') {
-      console.log('Returning LEADER LARS via voice ID');
+      console.log('✅ Returning LEADER LARS via voice ID');
       return 'LEADER LARS';
     } else if (activeVoiceId === '2e40bf21-8c36-45db-a408-5a3fc8d833db') {
-      console.log('Returning WIKTORIA CUKT 2.0 via voice ID');
+      console.log('✅ Returning WIKTORIA CUKT 2.0 via voice ID');
       return 'WIKTORIA CUKT 2.0';
     }
     
     // Fallback: check current agent state
     if (currentAgent === 'lars') {
-      console.log('Returning LEADER LARS via agent state');
+      console.log('✅ Returning LEADER LARS via agent state');
       return 'LEADER LARS';
     } else if (currentAgent === 'wiktoria') {
-      console.log('Returning WIKTORIA CUKT 2.0 via agent state');
+      console.log('✅ Returning WIKTORIA CUKT 2.0 via agent state');
       return 'WIKTORIA CUKT 2.0';
     }
     
     // Default to Lars since conversation starts with him
-    console.log('Returning default LEADER LARS');
+    console.log('⚠️ Using default LEADER LARS - no detection matched');
     return 'LEADER LARS';
   };
 
