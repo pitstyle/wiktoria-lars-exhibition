@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
   const responseBody = {
     systemPrompt: getLarsPerspectivePrompt(),
     voice: LARS_VOICE,
-    toolResultText: `(Lars joining for perspective) I'm ready to share my thoughts on ${topic} with you and Wiktoria.`,
+    toolResultText: `[AGENT: LARS] (Lars joining for perspective) I'm ready to share my thoughts on ${topic} with you and Wiktoria.`,
     selectedTools: [
       {
         "temporaryTool": {
@@ -64,6 +64,37 @@ export async function POST(request: NextRequest) {
           ],
           "http": {
             "baseUrlPattern": `${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : (process.env.NODE_ENV === 'production' ? 'https://wiktoria-lars-app.vercel.app' : 'https://a97e-31-178-4-112.ngrok-free.app')}/api/returnToWiktoria`,
+            "httpMethod": "POST"
+          }
+        }
+      },
+      {
+        "temporaryTool": {
+          "modelToolName": "EndCall",
+          "description": "End the conversation gracefully when the user wants to stop.",
+          "dynamicParameters": [
+            {
+              "name": "contextData",
+              "location": ParameterLocation.BODY,
+              "schema": {
+                "description": "Context for ending the call",
+                "type": "object",
+                "properties": {
+                  "userName": {
+                    "type": "string",
+                    "description": "The user's name"
+                  },
+                  "lastSpeaker": {
+                    "type": "string",
+                    "description": "The last speaker (lars)"
+                  }
+                }
+              },
+              "required": false
+            }
+          ],
+          "http": {
+            "baseUrlPattern": `${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : (process.env.NODE_ENV === 'production' ? 'https://wiktoria-lars-app.vercel.app' : 'https://a97e-31-178-4-112.ngrok-free.app')}/api/endCall`,
             "httpMethod": "POST"
           }
         }

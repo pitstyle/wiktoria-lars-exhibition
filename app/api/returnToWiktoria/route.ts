@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
   const responseBody = {
     systemPrompt: getWiktoriaEngagerPrompt(),
     voice: WIKTORIA_VOICE,
-    toolResultText: `(Wiktoria returning with enhanced context) I'm ready to continue our discussion about ${topic} with insights from both Lars and myself.`,
+    toolResultText: `[AGENT: WIKTORIA] (Wiktoria returning with enhanced context) I'm ready to continue our discussion about ${topic} with insights from both Lars and myself.`,
     // Include tool for requesting Lars perspective again to create conversation loop
     selectedTools: [
       {
@@ -61,6 +61,37 @@ export async function POST(request: NextRequest) {
           ],
           "http": {
             "baseUrlPattern": `${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : (process.env.NODE_ENV === 'production' ? 'https://wiktoria-lars-app.vercel.app' : 'https://a97e-31-178-4-112.ngrok-free.app')}/api/requestLarsPerspective`,
+            "httpMethod": "POST"
+          }
+        }
+      },
+      {
+        "temporaryTool": {
+          "modelToolName": "EndCall",
+          "description": "End the conversation gracefully when the user wants to stop.",
+          "dynamicParameters": [
+            {
+              "name": "contextData",
+              "location": ParameterLocation.BODY,
+              "schema": {
+                "description": "Context for ending the call",
+                "type": "object",
+                "properties": {
+                  "userName": {
+                    "type": "string",
+                    "description": "The user's name"
+                  },
+                  "lastSpeaker": {
+                    "type": "string",
+                    "description": "The last speaker (wiktoria)"
+                  }
+                }
+              },
+              "required": false
+            }
+          ],
+          "http": {
+            "baseUrlPattern": `${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : (process.env.NODE_ENV === 'production' ? 'https://wiktoria-lars-app.vercel.app' : 'https://a97e-31-178-4-112.ngrok-free.app')}/api/endCall`,
             "httpMethod": "POST"
           }
         }

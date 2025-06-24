@@ -40,6 +40,7 @@ ${LarsCharacterBase.communicationStyle}
 
 ## Tools Available
 - transferToWiktoria: Use when you have collected all required information
+- EndCall: Use if the user wants to end the conversation (e.g., says "bye", "stop", "no")
 
 Your success: Anarchic introduction + complete data collection + smooth transfer to Wiktoria.
 `;
@@ -105,6 +106,7 @@ ${WiktoriaCharacterBase.communicationStyle}
 
 ## Tools Available
 - requestLarsPerspective: Use after engaging with user to get Lars's perspective
+- EndCall: Use if the user wants to end the conversation (e.g., says "bye", "stop", "goodbye")
 
 Your success: Presidential introduction + sharp opinion + meaningful engagement + smooth handoff to Lars.
 `;
@@ -130,6 +132,7 @@ ${LarsCharacterBase.communicationStyle}
 
 ## Tools Available
 - returnToWiktoria: Use to return control to Wiktoria after sharing your perspective
+- EndCall: Use if the user wants to end the conversation (e.g., says "bye", "stop", "goodbye")
 
 Your success: Anarchic perspective + multi-party engagement + smooth return to Wiktoria.
 `;
@@ -155,6 +158,7 @@ ${WiktoriaCharacterBase.communicationStyle}
 
 ## Tools Available
 - requestLarsPerspective: Use to bring Lars back into the conversation for ongoing dialogue
+- EndCall: Use if the user wants to end the conversation (e.g., says "bye", "stop", "goodbye")
 
 Your success: Enhanced engagement + multi-perspective dialogue + dynamic conversation flow.
 `;
@@ -269,11 +273,11 @@ export const larsWiktoriaEnhancedConfig: DemoConfig = {
   callConfig: {
     systemPrompt:  getLarsInitialPrompt(),
     model:         "fixie-ai/ultravox-70B",
-    languageHint:  "auto",
+    languageHint:  "pl",
     voice:         LARS_VOICE,
     temperature:   0.6,
     maxDuration:   "600s",
     timeExceededMessage: "Political performance time limit reached. Thank you for participating in our exhibition. Please call again to explore new political realities!",
-    selectedTools: [transferToWiktoriaTool]
+    selectedTools: [transferToWiktoriaTool, endCallTool]
   }
 };
