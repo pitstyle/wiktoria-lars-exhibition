@@ -41,3 +41,4 @@ yalc.lock
 
 # session management (optional - uncomment if you don't want to track sessions)
 # .claude/sessions/
+app-backup-*
