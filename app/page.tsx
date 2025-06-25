@@ -6,10 +6,12 @@ import { startCall, endCall } from '@/lib/callFunctions'
 import { CallConfig, SelectedTool } from '@/lib/types'
 import { larsWiktoriaEnhancedConfig as demoConfig } from '@/app/lars-wiktoria-enhanced-config';
 import { Role, Transcript, UltravoxExperimentalMessageEvent, UltravoxSessionStatus } from 'ultravox-client';
-import CallStatus from '@/components/CallStatus';
-import DebugMessages from '@/components/DebugMessages';
-import MicToggleButton from '@/components/MicToggleButton';
+import CallStatus from '@/app/components/CallStatus';
+import DebugMessages from '@/app/components/DebugMessages';
+import MicToggleButton from '@/app/components/MicToggleButton';
+import AnalyticsDashboard from '@/app/components/AnalyticsDashboard';
 import { PhoneOffIcon } from 'lucide-react';
+import { saveConversation, saveTranscript, updateConversationEnd, Conversation } from '@/lib/supabase';
 
 type SearchParamsProps = {
   showMuteSpeakerButton: boolean;
@@ -46,7 +48,13 @@ export default function Home() {
   const [currentVoiceId, setCurrentVoiceId] = useState<string>('876ac038-08f0-4485-8b20-02b42bcf3416'); // Start with Lars
   const [currentAgent, setCurrentAgent] = useState<string>('lars'); // Track current agent
   const [voiceIssues, setVoiceIssues] = useState<string[]>([]); // Track voice problems
+  const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null); // Database conversation
+  const [userName, setUserName] = useState<string>(''); // User name for conversation tracking
+  const [topic, setTopic] = useState<string>(''); // Topic for conversation tracking
+  const [currentStage, setCurrentStage] = useState<string>('initial'); // Current conversation stage
   const transcriptContainerRef = useRef<HTMLDivElement>(null);
+  const conversationRef = useRef<Conversation | null>(null); // Immediate reference for transcript saving
+  const lastSavedTranscripts = useRef<Map<string, string>>(new Map()); // Track last saved content per speaker
   
   useEffect(() => {
     if (transcriptContainerRef.current) {
@@ -64,10 +72,15 @@ export default function Home() {
     
   }, []);
 
-  const handleTranscriptChange = useCallback((transcripts: Transcript[] | undefined) => {
+  const handleTranscriptChange = useCallback(async (transcripts: Transcript[] | undefined) => {
+    console.log('🚨 handleTranscriptChange called with:', transcripts ? transcripts.length : 'undefined', 'transcripts');
+    
     if(transcripts) {
       setCallTranscript([...transcripts]);
       
+      console.log('🔍 Transcript batch received:', transcripts.length, 'messages');
+      console.log('🔍 Current conversation ID:', currentConversation?.id);
+      console.log('🔍 Current conversation object:', currentConversation);
       console.log('🔍 All transcript speakers in this batch:', transcripts.map(t => `${t.speaker}: "${t.text.substring(0, 20)}..."`));
       
       // ENHANCED: Check ALL transcripts for agent markers, not just agent ones
@@ -78,13 +91,131 @@ export default function Home() {
         if (text.includes('[AGENT: LARS]')) {
           setCurrentAgent('lars');
           setCurrentVoiceId('876ac038-08f0-4485-8b20-02b42bcf3416');
+          setCurrentStage('lars-perspective');
           console.log('🏷️ Detected LARS via [AGENT: LARS] marker in transcript');
         } else if (text.includes('[AGENT: WIKTORIA]')) {
           setCurrentAgent('wiktoria');
           setCurrentVoiceId('2e40bf21-8c36-45db-a408-5a3fc8d833db');
+          setCurrentStage('wiktoria-response');
           console.log('🏷️ Detected WIKTORIA via [AGENT: WIKTORIA] marker in transcript');
         }
       });
+      
+      // 💾 Database Integration: Save COMPLETE transcripts only (no duplicates)
+      const activeConversation = conversationRef.current || currentConversation;
+      console.log('🔍 DB Debug - conversationRef:', conversationRef.current?.id);
+      console.log('🔍 DB Debug - currentConversation state:', currentConversation?.id);
+      console.log('🔍 DB Debug - activeConversation:', activeConversation?.id);
+      console.log('🔍 DB Debug - transcripts count:', transcripts?.length);
+      console.log('🔍 DB Debug - currentAgent:', currentAgent);
+      console.log('🔍 DB Debug - currentStage:', currentStage);
+      
+      if (activeConversation) {
+        console.log('✅ DB Debug - conversation exists, processing transcripts...');
+        
+        // Filter for COMPLETE speech segments only - Enhanced logic to prevent fragments
+        const newTranscripts = transcripts.filter(transcript => {
+          const speakerKey = `${transcript.speaker}`;
+          const currentText = transcript.text.trim();
+          const lastSavedText = lastSavedTranscripts.current.get(speakerKey) || '';
+          
+          // Skip if text is too short (require minimum meaningful length)
+          if (currentText.length < 25) {
+            return false;
+          }
+          
+          // Skip if this is just a longer version of what we already saved
+          if (lastSavedText && currentText.startsWith(lastSavedText)) {
+            // Only save if substantially longer AND appears complete
+            const lengthDiff = currentText.length - lastSavedText.length;
+            if (lengthDiff < 100) { // Increased from 50 to ensure more complete thoughts
+              return false;
+            }
+          }
+          
+          // Enhanced completion detection for full thoughts/sentences
+          const hasStrongCompletionIndicator = 
+            // Complete sentences with proper endings
+            /[.!?]\s*$/.test(currentText) ||
+            // Multiple complete sentences
+            (currentText.match(/[.!?]/g) || []).length >= 2 ||
+            // Natural conversation endings
+            currentText.toLowerCase().includes(' well,') ||
+            currentText.toLowerCase().includes(' so,') ||
+            currentText.toLowerCase().includes(' anyway,') ||
+            currentText.toLowerCase().includes(' right.') ||
+            currentText.toLowerCase().includes(' okay.') ||
+            // Agent-specific completion patterns
+            currentText.includes('*') || // Action descriptions like *chuckles*
+            currentText.toLowerCase().includes('transfer') ||
+            currentText.toLowerCase().includes('hand over') ||
+            currentText.toLowerCase().includes('colleague');
+          
+          // More stringent check: only save if clearly complete AND different
+          if (hasStrongCompletionIndicator && (!lastSavedText || !currentText.startsWith(lastSavedText))) {
+            lastSavedTranscripts.current.set(speakerKey, currentText);
+            return true;
+          }
+          
+          // Special case: If no previous text and this seems like a complete statement
+          if (!lastSavedText && hasStrongCompletionIndicator && currentText.length > 50) {
+            lastSavedTranscripts.current.set(speakerKey, currentText);
+            return true;
+          }
+          
+          return false;
+        });
+        
+        console.log(`🎯 Found ${newTranscripts.length} NEW transcripts to save (filtered from ${transcripts.length} total)`);
+        
+        if (newTranscripts.length > 0) {
+          const savePromises = newTranscripts.map(async (transcript) => {
+            try {
+              // Determine proper speaker name (database expects lowercase)
+              let speakerName: 'lars' | 'wiktoria' | 'user';
+              if (transcript.speaker === 'user') {
+                speakerName = 'user';
+              } else if (transcript.speaker === 'agent') {
+                // Use current agent detection for proper naming
+                speakerName = currentAgent === 'lars' ? 'lars' : 'wiktoria';
+              } else {
+                speakerName = 'user'; // fallback
+              }
+              
+              console.log('🚀 DB Debug - saving NEW transcript:', {
+                conversation_id: activeConversation.id,
+                speaker: speakerName,
+                stage: currentStage,
+                content: transcript.text.substring(0, 50) + '...',
+                length: transcript.text.length
+              });
+              
+              await saveTranscript({
+                conversation_id: activeConversation.id,
+                speaker: speakerName,
+                stage: currentStage,
+                content: transcript.text
+              });
+              console.log(`💾 NEW transcript saved: ${speakerName} - "${transcript.text.substring(0, 50)}..."`);
+            } catch (error) {
+              console.error('❌ Failed to save transcript:', error);
+              console.error('❌ Error details:', error);
+            }
+          });
+          
+          console.log('🔄 DB Debug - processing', savePromises.length, 'NEW transcript save promises');
+          // Don't await - let it run in background for zero latency
+          Promise.all(savePromises).catch(error => {
+            console.error('❌ Failed to save some transcripts:', error);
+          });
+        } else {
+          console.log('⏭️ No new transcripts to save (all were duplicates or fragments)');
+        }
+      } else {
+        console.log('❌ DB Debug - NO activeConversation! Transcripts not saved.');
+        console.log('❌ DB Debug - conversationRef.current:', conversationRef.current);
+        console.log('❌ DB Debug - currentConversation state:', currentConversation);
+      }
       
       // Get the latest agent transcript for content-based detection as fallback
       const agentTranscripts = transcripts.filter(t => t.speaker === 'agent');
@@ -139,7 +270,7 @@ export default function Home() {
         }
       }
     }
-  }, []);
+  }, [currentConversation, currentAgent, currentStage]); // Note: conversationRef doesn't need to be in deps
 
   const handleDebugMessage = useCallback((debugMessage: UltravoxExperimentalMessageEvent) => {
     setCallDebugMessages(prevMessages => [...prevMessages, debugMessage]);
@@ -274,6 +405,8 @@ export default function Home() {
       setCallTranscript(null);
       setCallDebugMessages([]);
       clearCustomerProfile();
+      // Clear saved transcript tracking for new call
+      lastSavedTranscripts.current.clear();
 
       // Generate a new key for the customer profile
       const newKey = `call-${Date.now()}`;
@@ -301,6 +434,33 @@ export default function Home() {
       }
       callConfig.selectedTools = demoConfig.callConfig.selectedTools;
 
+      // 💾 Database Integration: Create conversation record BEFORE starting call
+      try {
+        console.log('🚀 Creating conversation with:', {
+          ultravox_call_id: newKey,
+          user_name: userName || 'Anonymous User',
+          topic: topic || 'General Discussion'
+        });
+        
+        const conversation = await saveConversation({
+          ultravox_call_id: newKey,
+          user_name: userName || 'Anonymous User',
+          topic: topic || 'General Discussion'
+        });
+        
+        // Set both ref (immediate) and state (for UI)
+        conversationRef.current = conversation;
+        setCurrentConversation(conversation);
+        console.log('💾 Conversation created in database:', conversation);
+        console.log('💾 Conversation ref set immediately:', conversationRef.current?.id);
+        handleStatusChange(`Starting call - DB: ${conversation.id.substring(0, 8)}...`);
+      } catch (error) {
+        console.error('❌ Failed to create conversation:', error);
+        console.error('❌ Error details:', error);
+        handleStatusChange('Starting call - DB: Connection failed');
+        // Continue with call even if DB fails
+      }
+
       await startCall({
         onStatusChange: handleStatusChange,
         onTranscriptChange: handleTranscriptChange,
@@ -322,6 +482,25 @@ export default function Home() {
 
       clearCustomerProfile();
       setCustomerProfileKey(null);
+      
+      // 💾 Database Integration: Update conversation end (async - no latency impact)
+      if (currentConversation && callTranscript) {
+        try {
+          await updateConversationEnd(currentConversation.id, callTranscript.length);
+          console.log('💾 Conversation end updated in database');
+        } catch (error) {
+          console.error('❌ Failed to update conversation end:', error);
+        }
+      }
+      
+      // Clear both ref and state
+      conversationRef.current = null;
+      setCurrentConversation(null);
+      setUserName('');
+      setTopic('');
+      setCurrentStage('initial');
+      // Clear saved transcript tracking for new call
+      lastSavedTranscripts.current.clear();
       handleStatusChange('Call ended successfully');
     } catch (error) {
       handleStatusChange(`Error ending call: ${error instanceof Error ? error.message : String(error)}`);
@@ -406,6 +585,19 @@ export default function Home() {
                   {/* Call Status */}
                   <CallStatus status={agentStatus}>
                   </CallStatus>
+                  {/* 💾 Database Status */}
+                  {currentConversation && (
+                    <div className="mt-4 p-2 bg-green-100 border border-green-300 rounded text-xs">
+                      <strong>💾 Database Connected:</strong>
+                      <div className="text-green-600">
+                        Conversation ID: {currentConversation.id.substring(0, 8)}...
+                      </div>
+                      <div className="text-green-600">
+                        Saving transcripts automatically
+                      </div>
+                    </div>
+                  )}
+                  
                   {/* Voice Issues Debug */}
                   {voiceIssues.length > 0 && (
                     <div className="mt-4 p-2 bg-red-100 border border-red-300 rounded text-xs">
