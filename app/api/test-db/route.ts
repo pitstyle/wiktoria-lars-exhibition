@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
+export const dynamic = 'force-dynamic';
+
 // Import the enhancement functions from fetch-ultravox-data
 function identifySpeaker(role: string, text: string, previousSpeaker: string = '', messageIndex: number = 0): string {
   if (role === 'MESSAGE_ROLE_USER') {
