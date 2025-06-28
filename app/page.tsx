@@ -45,6 +45,7 @@ export default function Home() {
   const [callTranscript, setCallTranscript] = useState<Transcript[] | null>([]);
   const [callDebugMessages, setCallDebugMessages] = useState<UltravoxExperimentalMessageEvent[]>([]);
   const [customerProfileKey, setCustomerProfileKey] = useState<string | null>(null);
+  const [ultravoxCallId, setUltravoxCallId] = useState<string | null>(null); // Track actual Ultravox call ID
   const [currentVoiceId, setCurrentVoiceId] = useState<string>('876ac038-08f0-4485-8b20-02b42bcf3416'); // Start with Lars
   const [currentAgent, setCurrentAgent] = useState<string>('lars'); // Track current agent
   const [voiceIssues, setVoiceIssues] = useState<string[]>([]); // Track voice problems
@@ -79,9 +80,6 @@ export default function Home() {
       setCallTranscript([...transcripts]);
       
       console.log('🔍 Transcript batch received:', transcripts.length, 'messages');
-      console.log('🔍 Current conversation ID:', currentConversation?.id);
-      console.log('🔍 Current conversation object:', currentConversation);
-      console.log('🔍 All transcript speakers in this batch:', transcripts.map(t => `${t.speaker}: "${t.text.substring(0, 20)}..."`));
       
       // ENHANCED: Check ALL transcripts for agent markers, not just agent ones
       transcripts.forEach((transcript, index) => {
@@ -101,121 +99,7 @@ export default function Home() {
         }
       });
       
-      // 💾 Database Integration: Save COMPLETE transcripts only (no duplicates)
-      const activeConversation = conversationRef.current || currentConversation;
-      console.log('🔍 DB Debug - conversationRef:', conversationRef.current?.id);
-      console.log('🔍 DB Debug - currentConversation state:', currentConversation?.id);
-      console.log('🔍 DB Debug - activeConversation:', activeConversation?.id);
-      console.log('🔍 DB Debug - transcripts count:', transcripts?.length);
-      console.log('🔍 DB Debug - currentAgent:', currentAgent);
-      console.log('🔍 DB Debug - currentStage:', currentStage);
-      
-      if (activeConversation) {
-        console.log('✅ DB Debug - conversation exists, processing transcripts...');
-        
-        // Filter for COMPLETE speech segments only - Enhanced logic to prevent fragments
-        const newTranscripts = transcripts.filter(transcript => {
-          const speakerKey = `${transcript.speaker}`;
-          const currentText = transcript.text.trim();
-          const lastSavedText = lastSavedTranscripts.current.get(speakerKey) || '';
-          
-          // Skip if text is too short (require minimum meaningful length)
-          if (currentText.length < 25) {
-            return false;
-          }
-          
-          // Skip if this is just a longer version of what we already saved
-          if (lastSavedText && currentText.startsWith(lastSavedText)) {
-            // Only save if substantially longer AND appears complete
-            const lengthDiff = currentText.length - lastSavedText.length;
-            if (lengthDiff < 100) { // Increased from 50 to ensure more complete thoughts
-              return false;
-            }
-          }
-          
-          // Enhanced completion detection for full thoughts/sentences
-          const hasStrongCompletionIndicator = 
-            // Complete sentences with proper endings
-            /[.!?]\s*$/.test(currentText) ||
-            // Multiple complete sentences
-            (currentText.match(/[.!?]/g) || []).length >= 2 ||
-            // Natural conversation endings
-            currentText.toLowerCase().includes(' well,') ||
-            currentText.toLowerCase().includes(' so,') ||
-            currentText.toLowerCase().includes(' anyway,') ||
-            currentText.toLowerCase().includes(' right.') ||
-            currentText.toLowerCase().includes(' okay.') ||
-            // Agent-specific completion patterns
-            currentText.includes('*') || // Action descriptions like *chuckles*
-            currentText.toLowerCase().includes('transfer') ||
-            currentText.toLowerCase().includes('hand over') ||
-            currentText.toLowerCase().includes('colleague');
-          
-          // More stringent check: only save if clearly complete AND different
-          if (hasStrongCompletionIndicator && (!lastSavedText || !currentText.startsWith(lastSavedText))) {
-            lastSavedTranscripts.current.set(speakerKey, currentText);
-            return true;
-          }
-          
-          // Special case: If no previous text and this seems like a complete statement
-          if (!lastSavedText && hasStrongCompletionIndicator && currentText.length > 50) {
-            lastSavedTranscripts.current.set(speakerKey, currentText);
-            return true;
-          }
-          
-          return false;
-        });
-        
-        console.log(`🎯 Found ${newTranscripts.length} NEW transcripts to save (filtered from ${transcripts.length} total)`);
-        
-        if (newTranscripts.length > 0) {
-          const savePromises = newTranscripts.map(async (transcript) => {
-            try {
-              // Determine proper speaker name (database expects lowercase)
-              let speakerName: 'lars' | 'wiktoria' | 'user';
-              if (transcript.speaker === 'user') {
-                speakerName = 'user';
-              } else if (transcript.speaker === 'agent') {
-                // Use current agent detection for proper naming
-                speakerName = currentAgent === 'lars' ? 'lars' : 'wiktoria';
-              } else {
-                speakerName = 'user'; // fallback
-              }
-              
-              console.log('🚀 DB Debug - saving NEW transcript:', {
-                conversation_id: activeConversation.id,
-                speaker: speakerName,
-                stage: currentStage,
-                content: transcript.text.substring(0, 50) + '...',
-                length: transcript.text.length
-              });
-              
-              await saveTranscript({
-                conversation_id: activeConversation.id,
-                speaker: speakerName,
-                stage: currentStage,
-                content: transcript.text
-              });
-              console.log(`💾 NEW transcript saved: ${speakerName} - "${transcript.text.substring(0, 50)}..."`);
-            } catch (error) {
-              console.error('❌ Failed to save transcript:', error);
-              console.error('❌ Error details:', error);
-            }
-          });
-          
-          console.log('🔄 DB Debug - processing', savePromises.length, 'NEW transcript save promises');
-          // Don't await - let it run in background for zero latency
-          Promise.all(savePromises).catch(error => {
-            console.error('❌ Failed to save some transcripts:', error);
-          });
-        } else {
-          console.log('⏭️ No new transcripts to save (all were duplicates or fragments)');
-        }
-      } else {
-        console.log('❌ DB Debug - NO activeConversation! Transcripts not saved.');
-        console.log('❌ DB Debug - conversationRef.current:', conversationRef.current);
-        console.log('❌ DB Debug - currentConversation state:', currentConversation);
-      }
+      // NOTE: Fragment saving removed - full transcripts will be fetched post-call via Ultravox API
       
       // Get the latest agent transcript for content-based detection as fallback
       const agentTranscripts = transcripts.filter(t => t.speaker === 'agent');
@@ -248,9 +132,11 @@ export default function Home() {
           console.log('🔍 Detected Lars speaking based on character patterns');
         }
         // Enhanced Wiktoria detection with her specific patterns
-        else if (lowerText.includes('ai president') ||
+        else if (lowerText.includes('jestem wiktoria cukt') ||
+                 lowerText.includes('wiktoria cukt, prezydent') ||
                  lowerText.includes('president of poland') ||
-                 lowerText.includes('wiktoria cukt') ||
+                 lowerText.includes('prezydent polski') ||
+                 lowerText.includes('ai president') ||
                  lowerText.includes('sharp, dignified') ||
                  lowerText.includes('jako prezydentka') ||
                  lowerText.includes('legislative') ||
@@ -263,7 +149,8 @@ export default function Home() {
                  lowerText.includes('sharp tone') ||
                  text.includes('*smirks*') ||
                  text.includes('*eyes narrow*') ||
-                 text.includes('*leans in*')) {
+                 text.includes('*leans in*') ||
+                 (lowerText.includes('wiktoria') && !lowerText.includes('transfer') && !lowerText.includes('pass'))) {
           setCurrentAgent('wiktoria');
           setCurrentVoiceId('2e40bf21-8c36-45db-a408-5a3fc8d833db');
           console.log('🔍 Detected Wiktoria speaking based on character patterns');
@@ -461,11 +348,15 @@ export default function Home() {
         // Continue with call even if DB fails
       }
 
-      await startCall({
+      const callData = await startCall({
         onStatusChange: handleStatusChange,
         onTranscriptChange: handleTranscriptChange,
         onDebugMessage: handleDebugMessage
       }, callConfig, showDebugMessages);
+
+      // 🚀 Store actual Ultravox call ID for transcript fetching
+      setUltravoxCallId(callData.callId);
+      console.log('💾 Stored Ultravox call ID:', callData.callId);
 
       setIsCallActive(true);
       handleStatusChange('Call started successfully');
@@ -480,18 +371,46 @@ export default function Home() {
       await endCall();
       setIsCallActive(false);
 
-      clearCustomerProfile();
-      setCustomerProfileKey(null);
+      // 💾 Database Integration: Fetch full transcript and save complete conversation
+      // IMPORTANT: Use actual Ultravox call ID for transcript fetching
+      const callId = ultravoxCallId;
       
-      // 💾 Database Integration: Update conversation end (async - no latency impact)
-      if (currentConversation && callTranscript) {
+      if (currentConversation && callId) {
         try {
-          await updateConversationEnd(currentConversation.id, callTranscript.length);
+          handleStatusChange('Fetching full transcript...');
+          
+          // Fetch complete transcript from Ultravox API
+          const response = await fetch('/api/fetch-ultravox-data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              callId: callId,
+              conversationId: currentConversation.id 
+            })
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            console.log('💾 Full transcript fetched and saved:', result);
+            handleStatusChange('Transcript archived successfully');
+          } else {
+            console.error('❌ Failed to fetch full transcript:', response.statusText);
+            handleStatusChange('Archive failed - continuing...');
+          }
+          
+          // Update conversation end metadata
+          await updateConversationEnd(currentConversation.id, callTranscript?.length || 0);
           console.log('💾 Conversation end updated in database');
         } catch (error) {
-          console.error('❌ Failed to update conversation end:', error);
+          console.error('❌ Failed to archive conversation:', error);
+          handleStatusChange('Archive failed - continuing...');
         }
       }
+      
+      // Clear customer profile and call state AFTER database operations
+      clearCustomerProfile();
+      setCustomerProfileKey(null);
+      setUltravoxCallId(null); // Clear actual Ultravox call ID
       
       // Clear both ref and state
       conversationRef.current = null;

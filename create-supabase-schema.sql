@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS conversations (
   start_time TIMESTAMPTZ DEFAULT NOW(),
   end_time TIMESTAMPTZ,
   total_messages INTEGER DEFAULT 0,
+  full_transcript JSONB, -- Store complete transcript from Ultravox API
+  recording_url TEXT, -- Store MP3 recording URL
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -58,6 +60,14 @@ CREATE TRIGGER update_conversations_updated_at
 -- 8. Sample data (optional - for testing)
 -- INSERT INTO conversations (ultravox_call_id, user_name, topic) 
 -- VALUES ('sample-call-123', 'Test User', 'Database Setup Test');
+
+-- 9. Migration: Add new columns to existing conversations table (if needed)
+ALTER TABLE conversations 
+  ADD COLUMN IF NOT EXISTS full_transcript JSONB,
+  ADD COLUMN IF NOT EXISTS recording_url TEXT;
+
+-- 10. Create indexes for new columns
+CREATE INDEX IF NOT EXISTS idx_conversations_recording_url ON conversations(recording_url) WHERE recording_url IS NOT NULL;
 
 -- Verify tables were created
 SELECT 

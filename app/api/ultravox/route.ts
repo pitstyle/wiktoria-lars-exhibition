@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
         'X-API-Key': `${process.env.ULTRAVOX_API_KEY}`,
       },
-      body: JSON.stringify({ ...body }),
+      body: JSON.stringify({ ...body, recordingEnabled: true }),
     });
 
     console.log('Ultravox API response status:', response.status);

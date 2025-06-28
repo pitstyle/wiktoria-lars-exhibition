@@ -59,13 +59,13 @@ async function createCall(callConfig: CallConfig, showDebugMessages?: boolean): 
   }
 }
 
-export async function startCall(callbacks: CallCallbacks, callConfig: CallConfig, showDebugMessages?: boolean): Promise<void> {
+export async function startCall(callbacks: CallCallbacks, callConfig: CallConfig, showDebugMessages?: boolean): Promise<JoinUrlResponse> {
   const callData = await createCall(callConfig, showDebugMessages);
   const joinUrl = callData.joinUrl;
 
   if (!joinUrl && !uvSession) {
     console.error('Join URL is required');
-    return;
+    throw new Error('Join URL is required');
   } else {
     console.log('Joining call:', joinUrl);
 
@@ -93,11 +93,12 @@ export async function startCall(callbacks: CallCallbacks, callConfig: CallConfig
       uvSession.joinCall(joinUrl);
       console.log('Session status:', uvSession.status);
     } else {
-      return;
+      throw new Error('Failed to initialize UV session');
     }
   }
 
   console.log('Call started!'); 
+  return callData;
 }
 
 export async function endCall(): Promise<void> {

@@ -14,6 +14,8 @@ export interface Conversation {
   start_time: string
   end_time?: string
   total_messages: number
+  full_transcript?: any // JSONB from Ultravox API
+  recording_url?: string // MP3 recording URL
 }
 
 export interface Transcript {
@@ -95,6 +97,25 @@ export async function getConversations(limit: number = 10): Promise<Conversation
   }
 
   return data || []
+}
+
+export async function saveFullTranscript(
+  conversationId: string,
+  fullTranscript: any,
+  recordingUrl?: string
+): Promise<void> {
+  const { error } = await supabase
+    .from('conversations')
+    .update({ 
+      full_transcript: fullTranscript,
+      recording_url: recordingUrl 
+    })
+    .eq('id', conversationId)
+
+  if (error) {
+    console.error('Error saving full transcript:', error)
+    throw error
+  }
 }
 
 export async function searchTranscripts(query: string, limit: number = 20): Promise<any[]> {
