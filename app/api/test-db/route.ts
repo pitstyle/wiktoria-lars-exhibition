@@ -307,7 +307,7 @@ CREATE INDEX IF NOT EXISTS idx_conversations_end_time
       }
 
       // Extract user data from transcript (inline implementation)
-      function extractUserDataFromTranscript(transcript: any): { userName?: string, topic?: string } {
+      const extractUserDataFromTranscript = (transcript: any): { userName?: string, topic?: string } => {
         if (!transcript?.results || !Array.isArray(transcript.results)) {
           return {};
         }
@@ -340,7 +340,7 @@ CREATE INDEX IF NOT EXISTS idx_conversations_end_time
           userName: userName || undefined,
           topic: topic || undefined
         };
-      }
+      };
 
       const extractedData = extractUserDataFromTranscript(conversation.full_transcript);
 

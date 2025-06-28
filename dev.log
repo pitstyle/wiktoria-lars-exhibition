@@ -294,3 +294,5 @@ Ultravox API response status: 201
  GET /api/test-db?action=transcript&id=892969db-8e17-47d0-b443-02f69f77cf2e 200 in 358ms
  ✓ Compiled in 3.5s (875 modules)
  ✓ Compiled in 2.8s (899 modules)
+ ✓ Compiled in 4.9s (519 modules)
+ ✓ Compiled in 291ms (519 modules)
