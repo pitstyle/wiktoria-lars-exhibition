@@ -10,8 +10,10 @@ import CallStatus from '@/app/components/CallStatus';
 import DebugMessages from '@/app/components/DebugMessages';
 import MicToggleButton from '@/app/components/MicToggleButton';
 import AnalyticsDashboard from '@/app/components/AnalyticsDashboard';
+import ExhibitionInterface from '@/app/components/ExhibitionInterface';
 import { PhoneOffIcon } from 'lucide-react';
 import { saveConversation, saveTranscript, updateConversationEnd, Conversation } from '@/lib/supabase';
+import { isExhibitionMode, getModeConfig } from '@/lib/exhibitionMode';
 
 type SearchParamsProps = {
   showMuteSpeakerButton: boolean;
@@ -40,6 +42,19 @@ function SearchParamsHandler({ children }: SearchParamsHandlerProps) {
 }
 
 export default function Home() {
+  // State for mode detection (client-side only to avoid hydration issues)
+  const [isClient, setIsClient] = useState(false);
+  const [exhibitionMode, setExhibitionMode] = useState(false);
+  const [modeConfig, setModeConfig] = useState(getModeConfig());
+  
+  // Detect mode on client side
+  useEffect(() => {
+    setIsClient(true);
+    const isExhibition = isExhibitionMode();
+    setExhibitionMode(isExhibition);
+    setModeConfig(getModeConfig());
+  }, []);
+  
   const [isCallActive, setIsCallActive] = useState(false);
   const [agentStatus, setAgentStatus] = useState<string>('off');
   const [callTranscript, setCallTranscript] = useState<Transcript[] | null>([]);
@@ -426,11 +441,45 @@ export default function Home() {
     }
   };
 
+  // Show loading state until client-side hydration is complete
+  if (!isClient) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div>Loading...</div>
+      </div>
+    );
+  }
+
+  // Exhibition Mode - Use full-screen voice-activated interface
+  if (exhibitionMode) {
+    return (
+      <Suspense fallback={<div className="h-screen bg-black text-white flex items-center justify-center">Loading Exhibition...</div>}>
+        <SearchParamsHandler>
+          {({ showDebugMessages }: SearchParamsProps) => (
+            <ExhibitionInterface 
+              showDebugInfo={showDebugMessages}
+              onSessionStart={() => console.log('🎨 Exhibition session started')}
+              onSessionEnd={() => console.log('🎨 Exhibition session ended')}
+            />
+          )}
+        </SearchParamsHandler>
+      </Suspense>
+    );
+  }
+
+  // Web Mode - Use traditional button-based interface
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <SearchParamsHandler>
         {({ showMuteSpeakerButton, modelOverride, showDebugMessages, showUserTranscripts }: SearchParamsProps) => (
           <div className="flex flex-col items-center justify-center min-h-screen py-4">
+            {/* Mode Indicator (Development) */}
+            {showDebugMessages && (
+              <div className="fixed top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded text-sm z-50">
+                Mode: {modeConfig.mode.toUpperCase()}
+              </div>
+            )}
+            
             {/* Logo with Title */}
             <div className="mb-8 relative">
               <img src="/Ai_3d03.png" alt="ART Logo" className="w-80 h-auto" />
