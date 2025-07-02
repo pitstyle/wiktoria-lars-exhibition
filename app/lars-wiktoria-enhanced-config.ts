@@ -2,7 +2,7 @@
 
 import { DemoConfig, SelectedTool, ParameterLocation } from "@/lib/types";
 import { LarsCharacterBase } from "./characters/lars-character-base";
-import { WiktoriaCharacterBase } from "./characters/wiktoria-character-enhance2";
+import { WiktoriaCharacterBase } from "./characters/wiktoria-character-base";
 
 // ────────────────────────────────────────────────────────────
 //  Runtime constants
