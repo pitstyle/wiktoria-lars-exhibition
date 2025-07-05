@@ -17,8 +17,8 @@ export async function POST(request: NextRequest) {
       // No selectedTools or systemPrompt - this signals end of conversation
     });
 
-    // Set header to indicate this is a termination response
-    response.headers.set('X-Ultravox-Response-Type', 'end-call');
+    // CRITICAL FIX: Use correct Ultravox header for call termination
+    response.headers.set('X-Ultravox-Response-Type', 'hang-up');
 
     console.log('✅ End call response sent successfully');
     return response;

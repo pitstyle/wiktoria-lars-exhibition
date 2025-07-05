@@ -102,6 +102,8 @@ export async function POST(request: NextRequest) {
   const response = NextResponse.json(responseBody);
   // Critical: Set header for stage change
   response.headers.set('X-Ultravox-Response-Type', 'new-stage');
+  // CRITICAL FIX: Control agent behavior after tool call - agent should speak once then wait for user
+  response.headers.set('X-Ultravox-Agent-Reaction', 'speaks-once');
 
   return response;
 }
