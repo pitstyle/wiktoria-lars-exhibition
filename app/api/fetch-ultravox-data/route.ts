@@ -63,8 +63,31 @@ function extractUserDataFromTranscript(transcript: any): { userName?: string, to
   };
 }
 
+// Function to detect conversation stage based on tool calls and message patterns
+function detectConversationStage(role: string, text: string, toolName: string = '', messageIndex: number = 0): number {
+  if (role === 'MESSAGE_ROLE_TOOL_CALL') {
+    if (toolName === 'transferToWiktoria') {
+      return 2; // Stage 2: Wiktoria Opinion Leader
+    }
+    if (toolName === 'requestLarsPerspective') {
+      return 3; // Stage 3: Lars Perspective Provider
+    }
+    if (toolName === 'returnToWiktoria') {
+      return 4; // Stage 4: Wiktoria Conversation Facilitator
+    }
+  }
+  
+  // Default to Stage 1 for early messages (Lars collector)
+  if (messageIndex < 8) {
+    return 1;
+  }
+  
+  // If no clear stage detected, maintain previous or default to 1
+  return 1;
+}
+
 // Function to identify speaker from message content and role
-function identifySpeaker(role: string, text: string, previousSpeaker: string = '', messageIndex: number = 0): string {
+function identifySpeaker(role: string, text: string, previousSpeaker: string = '', messageIndex: number = 0, toolName: string = ''): string {
   if (role === 'MESSAGE_ROLE_USER') {
     return 'User';
   }
@@ -75,35 +98,62 @@ function identifySpeaker(role: string, text: string, previousSpeaker: string = '
     // DEBUG: Log message content for troubleshooting
     console.log(`🔍 Speaker Detection - Message ${messageIndex}: ${text_lower.substring(0, 100)}...`);
     
-    // PRIORITY 1: Strong Lars indicators (check FIRST to avoid transfer confusion)
+    // PRIORITY 1: Strong Lars behavioral indicators
     if (text_lower.includes('leader lars') || 
+        text_lower.includes('partii syntetycznej') ||
+        text_lower.includes('synthetic party') ||
         text_lower.includes('*coughs*') || 
         text_lower.includes('*puffs on cigarette*') ||
         text_lower.includes('*clears throat*') ||
         text_lower.includes('*scribbles notes*') ||
         text_lower.includes('*mutters') ||
-        text_lower.includes('synthetic party') ||
         text_lower.includes('gravel-voiced') ||
-        text_lower.includes('chain-smoking')) {
+        text_lower.includes('chain-smoking') ||
+        text_lower.includes('anarchist') ||
+        text_lower.includes('anarchiczn')) {
       console.log(`✅ LARS DETECTED by behavioral indicators in message ${messageIndex}`);
       return 'Leader Lars';
     }
     
-    // PRIORITY 2: Context-based detection: After transfer tool, it's Wiktoria
-    if (previousSpeaker === 'TOOL_TRANSFER') {
-      return 'Wiktoria Cukt 2.0';
-    }
-    
-    // PRIORITY 3: Strong Wiktoria self-identification (only if no Lars indicators)
-    if (text_lower.includes('jestem wiktoria cukt') || 
-        text_lower.includes('wiktoria cukt, prezydent') ||
+    // PRIORITY 2: Strong Wiktoria self-identification
+    if (text_lower.includes('wiktoria cukt') || 
+        text_lower.includes('ai prezydent') ||
         text_lower.includes('president of poland') ||
         text_lower.includes('prezydent polski') ||
         text_lower.includes('ai president')) {
+      console.log(`✅ WIKTORIA DETECTED by self-identification in message ${messageIndex}`);
       return 'Wiktoria Cukt 2.0';
     }
     
-    // PRIORITY 4: Wiktoria mentions (but NOT in transfer contexts)
+    // PRIORITY 3: Context-based detection after tool transfers
+    if (previousSpeaker === 'TOOL_TRANSFER' || previousSpeaker === 'System') {
+      // Check if message contains Wiktoria content patterns
+      if (text_lower.includes('witaj') || 
+          text_lower.includes('po wysłuchaniu') ||
+          text_lower.includes('mam jeszcze więcej do powiedzenia') ||
+          text_lower.includes('jako ai prezydent')) {
+        return 'Wiktoria Cukt 2.0';
+      }
+    }
+    
+    // PRIORITY 4: Stage-based detection
+    // After message 10, if we see political/anarchist language, it's likely Lars
+    if (messageIndex > 10 && (
+        text_lower.includes('hahah') ||
+        text_lower.includes('...!?!!?!') ||
+        text_lower.includes('ale, ale, ale') ||
+        text_lower.includes('anarchist') ||
+        text_lower.includes('restrykcj') ||
+        text_lower.includes('zmiany są konieczne'))) {
+      return 'Leader Lars';
+    }
+    
+    // PRIORITY 5: Early message detection (Lars usually starts)
+    if (messageIndex < 8) {
+      return 'Leader Lars';
+    }
+    
+    // Default fallback based on message content
     if (text_lower.includes('wiktoria') && 
         !text_lower.includes('pass the conversation to') && 
         !text_lower.includes('transfer') &&
@@ -112,18 +162,12 @@ function identifySpeaker(role: string, text: string, previousSpeaker: string = '
       return 'Wiktoria Cukt 2.0';
     }
     
-    // PRIORITY 5: Contextual fallback: if we just had a transfer, assume Wiktoria
-    if (previousSpeaker === 'System' && messageIndex > 10) {
-      return 'Wiktoria Cukt 2.0';
-    }
-    
-    // Default to Lars (he usually starts calls)
+    // Final fallback to Lars
     return 'Leader Lars';
   }
   
   if (role === 'MESSAGE_ROLE_TOOL_CALL') {
-    const text_lower = text.toLowerCase();
-    if (text_lower.includes('transfertowiktoria') || text_lower.includes('wiktoria')) {
+    if (toolName === 'transferToWiktoria' || toolName === 'requestLarsPerspective' || toolName === 'returnToWiktoria') {
       return 'TOOL_TRANSFER';
     }
     return 'System';
@@ -136,21 +180,31 @@ function identifySpeaker(role: string, text: string, previousSpeaker: string = '
   return 'Unknown';
 }
 
-// Function to enhance transcript with proper speaker labels
+// Function to enhance transcript with proper speaker labels and conversation stages
 function enhanceTranscriptWithSpeakers(transcript: any): any {
   if (!transcript || !transcript.results || !Array.isArray(transcript.results)) {
     return transcript;
   }
   
   let previousSpeaker = '';
+  let currentStage = 1;
   
   const enhancedResults = transcript.results.map((message: any, index: number) => {
-    const speaker = identifySpeaker(message.role, message.text || '', previousSpeaker, index);
+    const toolName = message.toolName || '';
+    const speaker = identifySpeaker(message.role, message.text || '', previousSpeaker, index, toolName);
+    
+    // Detect stage transitions
+    const detectedStage = detectConversationStage(message.role, message.text || '', toolName, index);
+    if (detectedStage > currentStage) {
+      currentStage = detectedStage;
+    }
+    
     previousSpeaker = speaker;
     
     return {
       ...message,
       speaker_label: speaker,
+      conversation_stage: currentStage,
       enhanced: true
     };
   });
@@ -159,6 +213,7 @@ function enhanceTranscriptWithSpeakers(transcript: any): any {
     ...transcript,
     results: enhancedResults,
     enhanced_with_speakers: true,
+    enhanced_with_stages: true,
     enhancement_timestamp: new Date().toISOString()
   };
 }
