@@ -81,8 +81,8 @@ export async function POST(request: NextRequest) {
       politeGoodbye: true
     };
 
-    // Create personalized goodbye message that the agent will speak
-    const agentFarewellMessage = `Dziękujemy Ci, ${farewellContext.userName}, za udział w naszej debacie politycznej! To była wspaniała rozmowa. Ja, ${farewellContext.lastSpeaker}, i cała Partia Syntetyczna oraz Wiktoria Cukt 2.0 życzymy Ci wszystkiego najlepszego. Do widzenia!`;
+    // Create simple goodbye message that the agent will speak
+    const agentFarewellMessage = `Dziękujemy, ${farewellContext.userName}, za wspaniałą rozmowę! Zapraszamy do ponownego kontaktu. Do widzenia!`;
 
     // Return response that will make agent speak farewell before terminating call
     const response = NextResponse.json({
