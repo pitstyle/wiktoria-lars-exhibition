@@ -1,6 +1,6 @@
 // File: app/lars-wiktoria-enhanced-config.ts
 
-import { DemoConfig, SelectedTool, ParameterLocation } from "@/lib/types";
+import { DemoConfig, SelectedTool, ParameterLocation, KnownParamEnum } from "@/lib/types";
 import { LarsCharacterBase } from "./characters/lars-character-base";
 import { WiktoriaCharacterBase } from "./characters/wiktoria-character-base";
 
@@ -117,10 +117,11 @@ ${WiktoriaCharacterBase.communicationStyle}
 - When ready, use the requestLarsPerspective tool to bring Lars into the conversation
 - NEVER ask if user wants to end or if there are other topics
 - DO NOT speak JSON or code blocks aloud - use tools silently
+- CRITICAL: If you use any natural ending phrases (like "Czas naszego politycznego występu dobiega końca"), IMMEDIATELY call the EndCall tool
 
 ## Tools Available
 - requestLarsPerspective: Use after engaging with user to get Lars's perspective  
-- EndCall: NEVER use unless system triggers time limit automatically
+- EndCall: Use IMMEDIATELY when you speak any natural ending phrases from your character base
 
 Your success: Presidential introduction + sharp opinion + meaningful engagement + smooth handoff to Lars.
 `;
@@ -179,10 +180,11 @@ ${WiktoriaCharacterBase.communicationStyle}
 - After 2-3 more exchanges, you may use requestLarsPerspective again to continue the loop
 - NEVER ask if user wants to end or if there are other topics - keep the conversation going
 - DO NOT speak JSON or code blocks aloud - use tools silently
+- CRITICAL: If you use any natural ending phrases (like "Czas naszego politycznego występu dobiega końca"), IMMEDIATELY call the EndCall tool
 
 ## Tools Available
 - requestLarsPerspective: Use to bring Lars back into the conversation for ongoing dialogue
-- EndCall: NEVER use unless system triggers time limit automatically
+- EndCall: Use IMMEDIATELY when you speak any natural ending phrases from your character base
 
 Your success: Enhanced engagement + multi-perspective dialogue + dynamic conversation flow.
 `;
@@ -195,6 +197,13 @@ const transferToWiktoriaTool: SelectedTool = {
   temporaryTool: {
     modelToolName: "transferToWiktoria",
     description: "Transfer conversation to Wiktoria Cukt after collecting user information.",
+    automaticParameters: [
+      {
+        name: "callId",
+        location: ParameterLocation.BODY,
+        knownValue: KnownParamEnum.CALL_ID
+      }
+    ],
     dynamicParameters: [
       {
         name: "contextData",
@@ -323,6 +332,13 @@ const endCallTool: SelectedTool = {
   temporaryTool: {
     modelToolName: "EndCall",
     description: "Ends the call and stops the flow.",
+    automaticParameters: [
+      {
+        name: "callId",
+        location: ParameterLocation.BODY,
+        knownValue: KnownParamEnum.CALL_ID
+      }
+    ],
     dynamicParameters: [],
     http: { baseUrlPattern: `${toolsBaseUrl}/api/endCall`, httpMethod: "POST" }
   }

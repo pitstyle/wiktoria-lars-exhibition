@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { saveFullTranscript } from '@/lib/supabase';
+import { saveFullTranscript, saveTranscript } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
   try {
@@ -62,6 +62,15 @@ export async function POST(request: NextRequest) {
           } else if (conversations) {
             await saveFullTranscript(conversations.id, fullTranscript, recordingUrl);
             console.log('✅ Full transcript saved to database for conversation:', conversations.id);
+
+            // Save end call stage as transcript
+            await saveTranscript({
+              conversation_id: conversations.id,
+              speaker: lastSpeaker === 'wiktoria' ? 'wiktoria' : 'lars',
+              stage: 'conversation_end',
+              content: `Conversation ended gracefully. Final speaker: ${lastSpeaker || 'unknown'}. User: ${userName || 'unknown'} completed discussion.`
+            });
+            console.log('✅ End call transcript saved');
           }
         } else {
           console.error('❌ Failed to fetch transcript from Ultravox:', messagesResponse.status);
