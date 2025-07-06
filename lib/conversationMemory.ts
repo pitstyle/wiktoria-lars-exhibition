@@ -230,13 +230,12 @@ export async function enhanceAgentPrompt(
   agentName: 'lars' | 'wiktoria',
   currentStage: string
 ): Promise<string> {
-  // EMERGENCY FIX: Disable prompt enhancement to prevent character corruption
-  // The memory system was causing character voice mixing
-  // TODO: Implement safe character-preserving memory enhancement
+  // EMERGENCY FIX: Disable memory enhancement to prevent character contamination
+  // Memory enhancement is causing character voice bleeding between agents
+  console.log(`🚫 Memory enhancement temporarily disabled for ${agentName} in stage: ${currentStage}`)
+  console.log(`✅ Using clean base prompt to preserve character integrity`)
   
-  console.log(`⚠️ Memory enhancement disabled for ${agentName} to preserve character integrity`)
-  
-  // Return original prompt unchanged to maintain character voices
+  // Return original prompt without memory contamination
   return basePrompt
 }
 
