@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
           // Save cleanup notification
           await saveTranscript({
             conversation_id: conversation.id,
-            speaker: 'system',
+            speaker: 'user',
             stage: 'conversation_end',
             content: `Call ended with status: ${callData.status}. Transcript recovered via cleanup job. Duration: ${callData.duration_ms || 'unknown'}ms.`
           });
