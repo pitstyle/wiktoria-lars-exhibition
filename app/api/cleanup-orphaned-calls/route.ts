@@ -132,12 +132,13 @@ export async function POST(request: NextRequest) {
 
         } else {
           console.error(`❌ Failed to fetch transcript for ${callId}:`, messagesResponse.status);
-          results.push({ 
+          const result: any = { 
             conversation_id: conversation.id, 
             call_id: callId, 
             status: 'transcript_fetch_failed',
             action: 'manual_compile_attempted'
-          });
+          };
+          results.push(result);
           
           // Try manual compilation as fallback
           const compileResponse = await fetch(`${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : (process.env.NODE_ENV === 'production' ? 'https://wiktoria-lars-app.vercel.app' : 'https://a97e-31-178-4-112.ngrok-free.app')}/api/compileTranscript`, {
@@ -146,7 +147,7 @@ export async function POST(request: NextRequest) {
             body: JSON.stringify({ conversationId: conversation.id })
           });
           
-          results[results.length - 1].compile_result = compileResponse.ok ? 'success' : 'failed';
+          result.compile_result = compileResponse.ok ? 'success' : 'failed';
         }
 
       } catch (error) {
