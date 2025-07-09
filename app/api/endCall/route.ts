@@ -1,11 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { saveFullTranscript, saveTranscript } from '@/lib/supabase';
+import { archiveService } from '@/lib/archiveService';
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+  
   try {
     const body = await request.json();
-    console.log('🔚 EndCall route called');
-    console.log('End call context:', body);
+    console.log(`🔚 EndCall route called at ${new Date().toISOString()}`);
+    console.log('🔚 DEBUGGING: EndCall triggered - Call duration and trigger analysis needed');
+    console.log('🔚 Request headers:', Object.fromEntries(request.headers.entries()));
+    console.log('🔚 End call context:', body);
+    console.log('🔚 Call timing: Started at startup, now ending at', new Date().toISOString());
+    
+    // Check if this is a premature call ending (should be ~10 minutes, not 2-3)
+    const callDurationMinutes = Math.floor(startTime / 60000);
+    if (callDurationMinutes < 8) {
+      console.log('🚨 WARNING: Call ending prematurely! Expected ~10 minutes, got:', callDurationMinutes, 'minutes');
+      console.log('🚨 This suggests maxDuration (600s) is not being respected or something else is triggering EndCall');
+    }
 
     // Extract context data and call ID
     const { userName, lastSpeaker } = body.contextData || {};
@@ -60,17 +73,36 @@ export async function POST(request: NextRequest) {
           if (findError) {
             console.error('⚠️ Could not find conversation for call ID:', callId, findError);
           } else if (conversations) {
-            await saveFullTranscript(conversations.id, fullTranscript, recordingUrl);
-            console.log('✅ Full transcript saved to database for conversation:', conversations.id);
+            // Check if transcript already exists to prevent duplicates
+            const { data: existingConv } = await supabase
+              .from('conversations')
+              .select('full_transcript')
+              .eq('id', conversations.id)
+              .single();
 
-            // Save end call stage as transcript
-            await saveTranscript({
-              conversation_id: conversations.id,
-              speaker: lastSpeaker === 'wiktoria' ? 'wiktoria' : 'lars',
-              stage: 'conversation_end',
-              content: `Conversation ended gracefully. Final speaker: ${lastSpeaker || 'unknown'}. User: ${userName || 'unknown'} completed discussion.`
-            });
-            console.log('✅ End call transcript saved');
+            if (existingConv?.full_transcript) {
+              console.log('✅ Full transcript already exists, skipping save to prevent duplicate');
+            } else {
+              await saveFullTranscript(conversations.id, fullTranscript, recordingUrl);
+              console.log('✅ Full transcript saved to database for conversation:', conversations.id);
+            }
+
+            // Save end call stage as transcript (only if we saved the full transcript)
+            if (!existingConv?.full_transcript) {
+              await saveTranscript({
+                conversation_id: conversations.id,
+                speaker: lastSpeaker === 'wiktoria' ? 'wiktoria' : 'lars',
+                stage: 'conversation_end',
+                content: `Conversation ended gracefully. Final speaker: ${lastSpeaker || 'unknown'}. User: ${userName || 'unknown'} completed discussion.`
+              });
+              console.log('✅ End call transcript saved');
+              
+              // Finalize conversation archiving
+              await archiveService.finalizeConversation(callId, fullTranscript, recordingUrl);
+              console.log('✅ Conversation archiving finalized');
+            } else {
+              console.log('✅ Skipping end call transcript and archiving - already processed');
+            }
           }
         } else {
           console.error('❌ Failed to fetch transcript from Ultravox:', messagesResponse.status);
@@ -93,9 +125,10 @@ export async function POST(request: NextRequest) {
     // Create simple goodbye message that the agent will speak
     const agentFarewellMessage = `Dziękujemy, ${farewellContext.userName}, za wspaniałą rozmowę! Zapraszamy do ponownego kontaktu. Do widzenia!`;
 
-    // Return response that will make agent speak farewell before terminating call
+    // Return response that will make agent speak farewell before terminating call  
     const response = NextResponse.json({
       message: agentFarewellMessage,
+      success: true
       // No selectedTools or systemPrompt - this signals end of conversation after agent speaks
     });
 
@@ -103,7 +136,7 @@ export async function POST(request: NextRequest) {
     response.headers.set('X-Ultravox-Response-Type', 'hang-up');
     response.headers.set('X-Ultravox-Agent-Reaction', 'speaks');
 
-    console.log('✅ End call response sent successfully');
+    console.log(`✅ End call response sent successfully in ${Date.now() - startTime}ms`);
     return response;
     
   } catch (error) {
