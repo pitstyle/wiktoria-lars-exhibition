@@ -23,7 +23,8 @@ export class ArchiveService {
     
     // If not found, try to find by userName to handle different call ID formats
     if (!cached && userName && userName !== 'Unknown' && userName !== 'Anonymous User') {
-      for (const [cachedCallId, cachedConv] of this.conversationCache.entries()) {
+      const cacheEntries = Array.from(this.conversationCache.entries());
+      for (const [cachedCallId, cachedConv] of cacheEntries) {
         // Check if there's a cached conversation for this user in recent time
         const timeDiff = Date.now() - new Date(cachedConv.transcriptEntries[0]?.timestamp || 0).getTime();
         if (timeDiff < 30 * 60 * 1000) { // 30 minutes
