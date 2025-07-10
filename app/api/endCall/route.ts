@@ -69,8 +69,8 @@ export async function POST(request: NextRequest) {
           console.log('🚀 NO TRANSCRIPT EXISTS - FORCING SAVE FROM ULTRAVOX API');
           
           let transcriptSaved = false;
-          let fullTranscript = null;
-          let recordingUrl = null;
+          let fullTranscript: any = null;
+          let recordingUrl: string | undefined = undefined;
           
           // TRY 1: Fetch from Ultravox API
           try {
