@@ -63,14 +63,16 @@ export async function POST(request: NextRequest) {
         // Conversation exists - force save transcript
         console.log(`🎯 Found conversation: ${conversations.id}, forcing transcript save...`);
         
+        // Declare variables in proper scope for entire conversation processing
+        let transcriptSaved = false;
+        let fullTranscript: any = null;
+        let recordingUrl: string | undefined = undefined;
+        
         if (conversations.full_transcript) {
           console.log('✅ Full transcript already exists - keeping existing data');
+          fullTranscript = conversations.full_transcript; // Use existing transcript for total_messages
         } else {
           console.log('🚀 NO TRANSCRIPT EXISTS - FORCING SAVE FROM ULTRAVOX API');
-          
-          let transcriptSaved = false;
-          let fullTranscript: any = null;
-          let recordingUrl: string | undefined = undefined;
           
           // TRY 1: Fetch from Ultravox API
           try {
