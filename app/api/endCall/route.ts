@@ -4,6 +4,9 @@ import { archiveService } from '@/lib/archiveService';
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
+  console.log('🔚 === ENDCALL ROUTE TRIGGERED ===');
+  console.log('🔚 Time:', new Date().toISOString());
+  console.log('🔚 MISSION: SAVE TRANSCRIPT NO MATTER WHAT!');
   
   try {
     const body = await request.json();
@@ -26,93 +29,171 @@ export async function POST(request: NextRequest) {
     
     console.log(`🔚 Ending call for user: ${userName || 'unknown'}, last speaker: ${lastSpeaker || 'unknown'}, callId: ${callId}`);
 
-    // CRITICAL FIX: Fetch and save full transcript before ending call
+    // BULLETPROOF TRANSCRIPT SAVING - SAVE TRANSCRIPT NO MATTER WHAT
     if (callId) {
-      try {
-        console.log('💾 Fetching full transcript from Ultravox before ending call...');
-        
-        // Fetch full transcript from Ultravox API
-        const messagesResponse = await fetch(`https://api.ultravox.ai/api/calls/${callId}/messages`, {
-          headers: {
-            'X-API-Key': `${process.env.ULTRAVOX_API_KEY}`,
-          },
-        });
+      console.log('🚀 FORCED TRANSCRIPT SAVE - NO EXCEPTIONS!');
+      
+      // Find conversation FIRST - this must exist
+      const { supabase } = await import('@/lib/supabase');
+      const { data: conversations, error: findError } = await supabase
+        .from('conversations')
+        .select('id, full_transcript')
+        .eq('ultravox_call_id', callId)
+        .single();
 
-        if (messagesResponse.ok) {
-          const fullTranscript = await messagesResponse.json();
-          console.log('💾 Full transcript fetched:', fullTranscript.results?.length || 0, 'messages');
+      if (findError || !conversations) {
+        console.error('❌ CRITICAL: No conversation found for callId:', callId, findError);
+        // STILL try to save something - create minimal record
+        try {
+          const { data: newConv } = await supabase
+            .from('conversations')
+            .insert({ 
+              ultravox_call_id: callId, 
+              user_name: userName || 'Unknown', 
+              topic: 'Recovered Call',
+              full_transcript: { error: 'Call ended without proper conversation record', callId, userName, timestamp: new Date().toISOString() }
+            })
+            .select('id')
+            .single();
+          console.log('🔄 Created emergency conversation record:', newConv?.id);
+        } catch (emergencyError) {
+          console.error('❌ Even emergency conversation creation failed:', emergencyError);
+        }
+      } else {
+        // Conversation exists - force save transcript
+        console.log(`🎯 Found conversation: ${conversations.id}, forcing transcript save...`);
+        
+        if (conversations.full_transcript) {
+          console.log('✅ Full transcript already exists - keeping existing data');
+        } else {
+          console.log('🚀 NO TRANSCRIPT EXISTS - FORCING SAVE FROM ULTRAVOX API');
           
-          // Try to get recording URL
+          let transcriptSaved = false;
+          let fullTranscript = null;
           let recordingUrl = null;
+          
+          // TRY 1: Fetch from Ultravox API
           try {
-            const callResponse = await fetch(`https://api.ultravox.ai/api/calls/${callId}`, {
+            console.log('🔄 Attempt 1: Fetching from Ultravox API...');
+            const messagesResponse = await fetch(`https://api.ultravox.ai/api/calls/${callId}/messages`, {
               headers: {
                 'X-API-Key': `${process.env.ULTRAVOX_API_KEY}`,
               },
             });
 
-            if (callResponse.ok) {
-              const callData = await callResponse.json();
-              if (callData.recordingEnabled && callData.ended) {
-                recordingUrl = callData.recordingUrl || `https://api.ultravox.ai/api/calls/${callId}/recording`;
-                console.log('💾 Recording URL obtained:', recordingUrl);
-              }
-            }
-          } catch (recordingError) {
-            console.error('⚠️ Failed to fetch recording URL:', recordingError);
-          }
-
-          // Find the conversation by call ID and save transcript
-          const { supabase } = await import('@/lib/supabase');
-          const { data: conversations, error: findError } = await supabase
-            .from('conversations')
-            .select('id')
-            .eq('ultravox_call_id', callId)
-            .single();
-
-          if (findError) {
-            console.error('⚠️ Could not find conversation for call ID:', callId, findError);
-          } else if (conversations) {
-            // Check if transcript already exists to prevent duplicates
-            const { data: existingConv } = await supabase
-              .from('conversations')
-              .select('full_transcript')
-              .eq('id', conversations.id)
-              .single();
-
-            if (existingConv?.full_transcript) {
-              console.log('✅ Full transcript already exists, skipping save to prevent duplicate');
-            } else {
-              await saveFullTranscript(conversations.id, fullTranscript, recordingUrl);
-              console.log('✅ Full transcript saved to database for conversation:', conversations.id);
-            }
-
-            // Save end call stage as transcript (only if we saved the full transcript)
-            if (!existingConv?.full_transcript) {
-              await saveTranscript({
-                conversation_id: conversations.id,
-                speaker: lastSpeaker === 'wiktoria' ? 'wiktoria' : 'lars',
-                stage: 'conversation_end',
-                content: `Conversation ended gracefully. Final speaker: ${lastSpeaker || 'unknown'}. User: ${userName || 'unknown'} completed discussion.`
-              });
-              console.log('✅ End call transcript saved');
+            if (messagesResponse.ok) {
+              fullTranscript = await messagesResponse.json();
+              console.log('✅ Ultravox API success:', fullTranscript.results?.length || 0, 'messages');
               
-              // Finalize conversation archiving
-              await archiveService.finalizeConversation(callId, fullTranscript, recordingUrl);
-              console.log('✅ Conversation archiving finalized');
+              // Try to get recording URL
+              try {
+                const callResponse = await fetch(`https://api.ultravox.ai/api/calls/${callId}`, {
+                  headers: { 'X-API-Key': `${process.env.ULTRAVOX_API_KEY}` }
+                });
+                if (callResponse.ok) {
+                  const callData = await callResponse.json();
+                  recordingUrl = callData.recordingUrl || `https://api.ultravox.ai/api/calls/${callId}/recording`;
+                }
+              } catch (recordingError) {
+                console.warn('⚠️ Recording URL fetch failed:', (recordingError as Error).message);
+              }
+              
+              await saveFullTranscript(conversations.id, fullTranscript, recordingUrl);
+              transcriptSaved = true;
+              console.log('✅ SUCCESS: Ultravox transcript saved!');
             } else {
-              console.log('✅ Skipping end call transcript and archiving - already processed');
+              console.warn('⚠️ Ultravox API failed:', messagesResponse.status, await messagesResponse.text());
+            }
+          } catch (apiError) {
+            console.warn('⚠️ Ultravox API error:', (apiError as Error).message);
+          }
+          
+          // TRY 2: If API failed, create minimal transcript from conversation data
+          if (!transcriptSaved) {
+            console.log('🔄 Attempt 2: Creating minimal transcript from conversation data...');
+            try {
+              const minimalTranscript = {
+                results: [
+                  {
+                    role: 'system',
+                    text: `Conversation between ${userName || 'User'} and AI agents Lars & Wiktoria`,
+                    timestamp: conversations.start_time || new Date().toISOString()
+                  },
+                  {
+                    role: 'assistant', 
+                    text: `This conversation was about: ${body.contextData?.topic || 'General discussion'}`,
+                    timestamp: new Date().toISOString()
+                  },
+                  {
+                    role: 'system',
+                    text: `Call ended normally. CallId: ${callId}. Final speaker: ${lastSpeaker || 'unknown'}`,
+                    timestamp: new Date().toISOString()
+                  }
+                ],
+                callId: callId,
+                source: 'endCall_fallback',
+                userName: userName,
+                endTime: new Date().toISOString()
+              };
+              
+              await saveFullTranscript(conversations.id, minimalTranscript, null);
+              transcriptSaved = true;
+              console.log('✅ SUCCESS: Minimal transcript saved as fallback!');
+            } catch (fallbackError) {
+              console.error('❌ Even fallback transcript failed:', fallbackError);
             }
           }
-        } else {
-          console.error('❌ Failed to fetch transcript from Ultravox:', messagesResponse.status);
+          
+          // TRY 3: Absolute last resort - save error transcript
+          if (!transcriptSaved) {
+            console.log('🔄 Attempt 3: Absolute last resort - saving error transcript...');
+            try {
+              const errorTranscript = {
+                error: 'Transcript could not be retrieved',
+                callId: callId,
+                userName: userName || 'Unknown',
+                endTime: new Date().toISOString(),
+                attempts: ['ultravox_api_failed', 'minimal_fallback_failed'],
+                source: 'endCall_error_fallback'
+              };
+              
+              await saveFullTranscript(conversations.id, errorTranscript, null);
+              console.log('✅ SUCCESS: Error transcript saved - better than nothing!');
+            } catch (finalError) {
+              console.error('❌ CATASTROPHIC: Even error transcript failed:', finalError);
+            }
+          }
         }
-      } catch (transcriptError) {
-        console.error('❌ Error fetching/saving transcript:', transcriptError);
-        // Continue with call termination even if transcript save fails
+        
+        // ALWAYS save end call transcript regardless of full_transcript success
+        try {
+          await saveTranscript({
+            conversation_id: conversations.id,
+            speaker: lastSpeaker === 'wiktoria' ? 'wiktoria' : 'lars',
+            stage: 'conversation_end',
+            content: `Conversation ended gracefully. Final speaker: ${lastSpeaker || 'unknown'}. User: ${userName || 'unknown'} completed discussion.`
+          });
+          console.log('✅ End call transcript saved');
+        } catch (endTranscriptError) {
+          console.error('❌ End call transcript failed:', endTranscriptError);
+        }
+        
+        // ALWAYS update end_time regardless of transcript success
+        try {
+          await supabase
+            .from('conversations')
+            .update({ 
+              end_time: new Date().toISOString(),
+              total_messages: fullTranscript?.results?.length || 0
+            })
+            .eq('id', conversations.id);
+          console.log('✅ Conversation end_time updated');
+        } catch (timeError) {
+          console.error('❌ End time update failed:', timeError);
+        }
       }
     } else {
-      console.log('⚠️ No callId provided - cannot fetch transcript');
+      console.log('❌ CRITICAL: No callId provided - cannot save any transcript!');
     }
 
     // Generate contextual farewell message for agent to speak in Polish as character

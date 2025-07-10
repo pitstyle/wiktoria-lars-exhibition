@@ -7,87 +7,138 @@ import { saveConversationContext, enhanceAgentPrompt } from '@/lib/conversationM
 export async function POST(request: NextRequest) {
   const body = await request.json();
   console.log(`🔄 Stage Transition: Lars → Wiktoria (Opinion Leader)`);
+  console.log(`🔄 TOPIC EXTRACTION: Will extract real topic if generic`);
   console.log(`Context:`, body);
 
   // Extract context from Lars
-  const { userName, age, occupation, topic, topicIntroduction } = body.contextData || {};
+  let { userName, age, occupation, topic, topicIntroduction } = body.contextData || {};
+  
+  // CRITICAL FIX: If topic is generic, try to extract real topic from Ultravox transcript
+  if (topic === 'General Discussion' || !topic || topic === 'Art Exhibition Interaction') {
+    console.log(`🔍 Generic topic detected ("${topic}"), attempting to extract real topic from Ultravox transcript...`);
+    
+    const { callId } = body;
+    if (callId) {
+      try {
+        // Fetch transcript from Ultravox to extract real topic
+        const messagesResponse = await fetch(`https://api.ultravox.ai/api/calls/${callId}/messages`, {
+          headers: {
+            'X-API-Key': `${process.env.ULTRAVOX_API_KEY}`,
+          },
+        });
+        
+        if (messagesResponse.ok) {
+          const transcript = await messagesResponse.json();
+          const messages = transcript.results || [];
+          
+          // Extract topic from user messages
+          for (const message of messages) {
+            if (message.role === 'MESSAGE_ROLE_USER' && message.text) {
+              const text = message.text;
+              
+              // Look for topic patterns in Polish
+              const topicPatterns = [
+                /chcę (?:rozmawiać|porozmawiać|dyskutować) (?:o|na temat) (.+?)(?:\.|$|,)/i,
+                /interesuje mnie (.+?)(?:\.|$|,)/i,
+                /temat[^:]*:?\s*(.+?)(?:\.|$|,)/i,
+                /(?:o|na temat) (.+?)(?:\.|$|,)/i,
+                /mówić o (.+?)(?:\.|$|,)/i,
+                /dyskusja o (.+?)(?:\.|$|,)/i
+              ];
+              
+              for (const pattern of topicPatterns) {
+                const match = text.match(pattern);
+                if (match && match[1]) {
+                  const extractedTopic = match[1].trim();
+                  // Filter out generic responses
+                  if (extractedTopic.length > 3 && 
+                      !extractedTopic.toLowerCase().includes('nie wiem') && 
+                      !extractedTopic.toLowerCase().includes('wszystko') &&
+                      !extractedTopic.toLowerCase().includes('tego') &&
+                      extractedTopic.length < 100) {
+                    topic = extractedTopic;
+                    console.log(`✅ Extracted real topic from transcript: "${topic}"`);
+                    break;
+                  }
+                }
+              }
+              
+              if (topic !== 'General Discussion' && topic !== 'Art Exhibition Interaction') break;
+            }
+          }
+          
+          // If still no topic found, use a meaningful fallback
+          if (topic === 'General Discussion' || topic === 'Art Exhibition Interaction') {
+            // Look for any substantive user input as topic hint
+            for (const message of messages) {
+              if (message.role === 'MESSAGE_ROLE_USER' && message.text && message.text.length > 10) {
+                const userText = message.text.trim();
+                if (!userText.toLowerCase().includes('nazywam się') && 
+                    !userText.toLowerCase().includes('mam lat') &&
+                    !userText.toLowerCase().includes('jestem') &&
+                    userText.length < 50) {
+                  topic = userText;
+                  console.log(`✅ Using user input as topic: "${topic}"`);
+                  break;
+                }
+              }
+            }
+          }
+        } else {
+          console.warn(`⚠️ Failed to fetch Ultravox transcript for topic extraction: ${messagesResponse.status}`);
+        }
+      } catch (topicError) {
+        console.error(`❌ Error extracting topic from Ultravox:`, topicError);
+      }
+    }
+    
+    // Final fallback: if still generic, use a timestamp-based topic
+    if (topic === 'General Discussion' || topic === 'Art Exhibition Interaction') {
+      topic = `Rozmowa z ${userName || 'użytkownikiem'} - ${new Date().toLocaleDateString('pl-PL')}`;
+      console.log(`⚠️ Using fallback topic: "${topic}"`);
+    }
+  }
+  
+  // Initialize metadata for repetition prevention
+  const conversationMetadata = {
+    questionsAsked: [], // Track questions to prevent repetition
+    exchangeCount: 0,   // Track agent exchanges to prevent loops
+    conversationPhase: "early" as "early" | "mid" | "late"
+  };
   
   // Extract call ID from body (passed via automatic parameter)
   const { callId } = body;
 
-  // Save conversation to Supabase with extracted user data
+  // Save conversation to Supabase - ASYNC to avoid timeout
   let conversationId: string | null = null;
   if (callId && userName && topic) {
-    try {
-      console.log(`💾 Saving conversation: callId=${callId}, userName=${userName}, topic=${topic}`);
-      const conversation = await saveConversation({
-        ultravox_call_id: callId,
-        user_name: userName,
-        topic: topic
-      });
-      conversationId = conversation.id;
-      console.log(`✅ Conversation saved successfully to Supabase: ${conversationId}`);
+    // Do this async to not block the response
+    setImmediate(async () => {
+      try {
+        console.log(`💾 Saving conversation: callId=${callId}, userName=${userName}, topic=${topic} (${topic === body.contextData?.topic ? 'original' : 'extracted'})`);
+        const conversation = await saveConversation({
+          ultravox_call_id: callId,
+          user_name: userName,
+          topic: topic
+        });
+        console.log(`✅ Conversation saved successfully to Supabase: ${conversation.id}`);
 
-      // Save user context to memory
-      await saveConversationContext(
-        conversationId,
-        'user_info',
-        { name: userName, age, occupation, initialTopic: topic },
-        'lars_initial',
-        'system'
-      );
-
-      // Save topic introduction context
-      if (topicIntroduction) {
-        await saveConversationContext(
-          conversationId,
-          'topic_covered',
-          { 
-            category: 'personal',
-            topic: topic,
-            introduction: topicIntroduction,
-            depth: 1
-          },
-          'lars_initial',
-          'lars'
-        );
+        // Save Lars's initial interaction as transcript
+        await saveTranscript({
+          conversation_id: conversation.id,
+          speaker: 'lars',
+          stage: 'lars_initial', 
+          content: `Lars collected user information: Name: ${userName}, Age: ${age}, Occupation: ${occupation}, Topic: ${topic}. Introduction: ${topicIntroduction || 'Initial topic introduction'}`
+        });
+        console.log(`✅ Lars initial transcript saved`);
+      } catch (error) {
+        console.error(`❌ Failed to save conversation to Supabase:`, error);
       }
-
-      console.log(`✅ Conversation context saved to memory`);
-
-      // Save Lars's initial interaction as transcript
-      await saveTranscript({
-        conversation_id: conversationId,
-        speaker: 'lars',
-        stage: 'lars_initial', 
-        content: `Lars collected user information: Name: ${userName}, Age: ${age}, Occupation: ${occupation}, Topic: ${topic}. Introduction: ${topicIntroduction || 'Initial topic introduction'}`
-      });
-      console.log(`✅ Lars initial transcript saved`);
-
-    } catch (error) {
-      console.error(`❌ Failed to save conversation to Supabase:`, error);
-      // Continue with conversation flow even if save fails
-    }
-  } else {
-    console.log(`⚠️ Missing required data for conversation save: callId=${callId}, userName=${userName}, topic=${topic}`);
+    });
   }
 
-  // Set up Wiktoria's opinion leader stage with memory enhancement
-  let enhancedPrompt = getWiktoriaOpinionPrompt();
-  if (conversationId) {
-    try {
-      enhancedPrompt = await enhanceAgentPrompt(
-        getWiktoriaOpinionPrompt(),
-        conversationId,
-        'wiktoria',
-        'wiktoria_opinion'
-      );
-      console.log(`✅ Enhanced Wiktoria's prompt with conversation memory`);
-    } catch (error) {
-      console.error(`⚠️ Failed to enhance prompt with memory:`, error);
-      // Fall back to original prompt
-    }
-  }
+  // Use basic prompt to avoid memory lookup delays
+  const enhancedPrompt = getWiktoriaOpinionPrompt();
 
   const responseBody = {
     systemPrompt: enhancedPrompt,
@@ -129,6 +180,20 @@ export async function POST(request: NextRequest) {
                   "wiktoriaOpinion": {
                     "type": "string",
                     "description": "Summary of Wiktoria's shared opinion"
+                  },
+                  "questionsAsked": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "List of questions already asked to prevent repetition"
+                  },
+                  "exchangeCount": {
+                    "type": "number",
+                    "description": "Number of agent exchanges to track conversation flow"
+                  },
+                  "conversationPhase": {
+                    "type": "string",
+                    "enum": ["early", "mid", "late"],
+                    "description": "Current phase of conversation for flow control"
                   }
                 },
                 "required": ["userName", "topic"]
@@ -138,44 +203,6 @@ export async function POST(request: NextRequest) {
           ],
           "http": {
             "baseUrlPattern": `${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : (process.env.NODE_ENV === 'production' ? 'https://wiktoria-lars-app.vercel.app' : 'https://a97e-31-178-4-112.ngrok-free.app')}/api/requestLarsPerspective`,
-            "httpMethod": "POST"
-          }
-        }
-      },
-      {
-        "temporaryTool": {
-          "modelToolName": "EndCall",
-          "description": "End the conversation gracefully when the user wants to stop.",
-          "automaticParameters": [
-            {
-              "name": "callId",
-              "location": ParameterLocation.BODY,
-              "knownValue": KnownParamEnum.CALL_ID
-            }
-          ],
-          "dynamicParameters": [
-            {
-              "name": "contextData",
-              "location": ParameterLocation.BODY,
-              "schema": {
-                "description": "Context for ending the call",
-                "type": "object",
-                "properties": {
-                  "userName": {
-                    "type": "string",
-                    "description": "The user's name"
-                  },
-                  "lastSpeaker": {
-                    "type": "string",
-                    "description": "The last speaker (wiktoria)"
-                  }
-                }
-              },
-              "required": false
-            }
-          ],
-          "http": {
-            "baseUrlPattern": `${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : (process.env.NODE_ENV === 'production' ? 'https://wiktoria-lars-app.vercel.app' : 'https://a97e-31-178-4-112.ngrok-free.app')}/api/endCall`,
             "httpMethod": "POST"
           }
         }

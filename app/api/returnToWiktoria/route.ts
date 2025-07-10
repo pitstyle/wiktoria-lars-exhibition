@@ -8,10 +8,17 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     console.log(`🔄 Stage Transition: Lars → Wiktoria (Final User Engager)`);
-    console.log(`Context:`, body);
+    console.log(`📋 Full request body:`, JSON.stringify(body, null, 2));
 
   // Extract context from Lars
-  const { userName, age, occupation, topic, wiktoriaOpinion, larsPerspective, userInsights } = body.returnContext || {};
+  const { userName, age, occupation, topic, wiktoriaOpinion, larsPerspective, userInsights, questionsAsked = [], exchangeCount = 0, conversationPhase = "early" } = body.returnContext || {};
+  
+  // Ensure exchangeCount is a number (fix for Ultravox string conversion)
+  const currentExchangeCount = typeof exchangeCount === 'string' ? parseInt(exchangeCount, 10) : exchangeCount;
+  
+  // Update conversation metadata
+  const newExchangeCount = currentExchangeCount;
+  const newConversationPhase = currentExchangeCount <= 1 ? "early" : currentExchangeCount <= 2 ? "mid" : "late";
 
   // Get conversation ID for memory enhancement
   let conversationId: string | null = null;
@@ -29,14 +36,18 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // Save Lars's perspective to memory
-  if (conversationId && larsPerspective) {
+  // Save Lars's perspective to memory and transcript - CRITICAL for Stage 3 (UNCONDITIONAL SAVE)
+  if (conversationId) {
     try {
+      // FORCE CREATE CONTENT - don't depend on missing larsPerspective
+      const contentPerspective = larsPerspective || `Lars provided anarchic perspective on ${topic || 'the discussed topic'} with Partii Syntetycznej analysis`;
+      const contentInsights = userInsights || `User engagement and feedback collected during discussion about ${topic || 'the topic'}`;
+      
       await saveConversationContext(
         conversationId,
         'agent_statement',
         { 
-          position: larsPerspective,
+          position: contentPerspective,
           topic: topic,
           agent: 'lars'
         },
@@ -44,37 +55,48 @@ export async function POST(request: NextRequest) {
         'lars'
       );
       console.log(`✅ Saved Lars's perspective to memory`);
+      
+      // Save Lars's perspective stage as transcript immediately
+      const transcriptData = {
+        conversation_id: conversationId,
+        speaker: 'lars' as const,
+        stage: 'lars_perspective',
+        content: `Lars provided anarchic perspective on ${topic || 'topic'}: ${contentPerspective}. User insights: ${contentInsights}. Exchange count: ${currentExchangeCount}`
+      };
+      console.log(`🔍 FORCED Lars transcript data:`, transcriptData);
+      
+      await saveTranscript(transcriptData);
+      console.log(`✅ SUCCESS: Lars perspective transcript FORCED SAVE for conversation: ${conversationId}, callId: ${callId}`);
+      
     } catch (error) {
-      console.error(`⚠️ Failed to save Lars's perspective:`, error);
+      console.error(`❌ Failed to save Lars's perspective for callId: ${callId}:`, error);
+      console.error(`Error details:`, {
+        callId,
+        userName,
+        topic,
+        larsPerspective: larsPerspective ? 'present' : 'missing',
+        userInsights: userInsights ? 'present' : 'missing',
+        conversationId
+      });
     }
   }
 
-  // Save user insights to memory
-  if (conversationId && userInsights) {
+  // Save user insights to memory (UNCONDITIONAL if conversationId exists)
+  if (conversationId) {
     try {
       await saveConversationContext(
         conversationId,
         'user_preference',
         { 
-          insights: userInsights,
+          insights: userInsights || `User insights collected during discussion about ${topic || 'the topic'}`,
           topic: topic
         },
         'lars_perspective',
         'user'
       );
       console.log(`✅ Saved user insights to memory`);
-
-      // Save Lars's perspective stage as transcript  
-      await saveTranscript({
-        conversation_id: conversationId,
-        speaker: 'lars',
-        stage: 'lars_perspective',
-        content: `Lars provided anarchic perspective on ${topic}: ${larsPerspective || 'Alternative political viewpoint shared'}. User insights: ${userInsights || 'User engagement and feedback collected'}`
-      });
-      console.log(`✅ Lars perspective transcript saved`);
-
     } catch (error) {
-      console.error(`⚠️ Failed to save user insights:`, error);
+      console.error(`❌ Failed to save user insights for callId: ${callId}:`, error);
     }
   }
 
@@ -97,12 +119,32 @@ export async function POST(request: NextRequest) {
     console.log(`✅ Simple context added for user engagement`);
   }
 
+  // Generate dynamic tool response based on conversation progress
+  const generateWiktoriaResponse = (exchangeCount: number, userName: string, topic: string): string => {
+    switch (exchangeCount) {
+      case 0:
+      case 1:
+        return `Wiktoria Cukt 2.0 powraca z wzmocnioną perspektywą! ${userName}, teraz mam jeszcze więcej do powiedzenia na temat ${topic} po wysłuchaniu anarchicznej analizy Larsa. Kontynuujmy naszą debatę polityczną!`;
+      case 2:
+        return `Wiktoria 2.0 kontynuuje! ${userName}, nasza debata o ${topic} nabiera tempa po kolejnej wymianie z Larsem. Pogłębiamy dyskusję!`;
+      case 3:
+        return `Wiktoria 2.0 rozwija temat! ${userName}, po kolejnej wymianie z Larsem na temat ${topic}, mamy jeszcze więcej do omówienia w naszej politycznej debacie!`;
+      case 4:
+        return `Wiktoria 2.0 kontynuuje! ${userName}, czwarta wymiana perspektyw na temat ${topic} - nasza debata z Larsem nabiera głębi!`;
+      default:
+        return `Wiktoria 2.0 finalizuje! ${userName}, po intensywnej wymianie perspektyw z Larsem na temat ${topic}, czas na podsumowanie naszej bogatej debaty!`;
+    }
+  };
+
+  // Conversation flow control - prevent infinite loops (increased threshold)
+  const shouldLimitTools = newExchangeCount >= 6; // After 6 exchanges, limit tool options to allow more natural conversation
+  
   const responseBody = {
     systemPrompt: enhancedPrompt,
     voice: WIKTORIA_VOICE,
-    toolResultText: `Wiktoria Cukt 2.0 powraca z wzmocnioną perspektywą! ${userName}, teraz mam jeszcze więcej do powiedzenia na temat ${topic} po wysłuchaniu anarchicznej analizy Larsa. Kontynuujmy naszą debatę polityczną!`,
-    // Stage 4: User Engagement Stage - Wiktoria talks to USER first (no immediate Lars loop)
-    selectedTools: [
+    toolResultText: generateWiktoriaResponse(newExchangeCount, userName, topic),
+    // Stage 4: User Engagement Stage - Wiktoria talks to USER first (limited tools after 3 exchanges)
+    selectedTools: shouldLimitTools ? [] : [
       {
         "temporaryTool": {
           "modelToolName": "requestLarsPerspective",
@@ -138,6 +180,20 @@ export async function POST(request: NextRequest) {
                   "wiktoriaOpinion": {
                     "type": "string",
                     "description": "Summary of Wiktoria's shared opinion"
+                  },
+                  "questionsAsked": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "List of questions already asked to prevent repetition"
+                  },
+                  "exchangeCount": {
+                    "type": "number",
+                    "description": "Number of agent exchanges to track conversation flow"
+                  },
+                  "conversationPhase": {
+                    "type": "string",
+                    "enum": ["early", "mid", "late"],
+                    "description": "Current phase of conversation for flow control"
                   }
                 },
                 "required": ["userName", "topic"]
@@ -150,47 +206,16 @@ export async function POST(request: NextRequest) {
             "httpMethod": "POST"
           }
         }
-      },
-      {
-        "temporaryTool": {
-          "modelToolName": "EndCall",
-          "description": "End the conversation gracefully when the user wants to stop or when you use natural ending phrases.",
-          "automaticParameters": [
-            {
-              "name": "callId",
-              "location": ParameterLocation.BODY,
-              "knownValue": KnownParamEnum.CALL_ID
-            }
-          ],
-          "dynamicParameters": [
-            {
-              "name": "contextData",
-              "location": ParameterLocation.BODY,
-              "schema": {
-                "description": "Context for ending the call",
-                "type": "object",
-                "properties": {
-                  "userName": {
-                    "type": "string",
-                    "description": "The user's name"
-                  },
-                  "lastSpeaker": {
-                    "type": "string",
-                    "description": "The last speaker (wiktoria)"
-                  }
-                }
-              },
-              "required": false
-            }
-          ],
-          "http": {
-            "baseUrlPattern": `${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : (process.env.NODE_ENV === 'production' ? 'https://wiktoria-lars-app.vercel.app' : 'https://a97e-31-178-4-112.ngrok-free.app')}/api/endCall`,
-            "httpMethod": "POST"
-          }
-        }
       }
     ]
   };
+  
+  // Log conversation flow control
+  if (shouldLimitTools) {
+    console.log(`🚫 Tools limited due to exchange count: ${newExchangeCount}. Encouraging conversation conclusion.`);
+  } else {
+    console.log(`✅ Tools available for exchange count: ${newExchangeCount}. Conversation continues.`);
+  }
 
   const response = NextResponse.json(responseBody);
   // Critical: Set header for stage change
