@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
               recordingUrl = callData.recordingUrl || `https://api.ultravox.ai/api/calls/${conv.ultravox_call_id}/recording`;
             }
           } catch (recordingError) {
-            console.warn(`⚠️ Recording URL fetch failed for ${conv.ultravox_call_id}:`, recordingError.message);
+            console.warn(`⚠️ Recording URL fetch failed for ${conv.ultravox_call_id}:`, (recordingError as Error).message);
           }
           
           await saveFullTranscript(conv.id, fullTranscript, recordingUrl);
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
           console.warn(`⚠️ Ultravox API failed for ${conv.ultravox_call_id}: ${messagesResponse.status}`);
         }
       } catch (apiError) {
-        console.warn(`⚠️ Ultravox API error for ${conv.ultravox_call_id}:`, apiError.message);
+        console.warn(`⚠️ Ultravox API error for ${conv.ultravox_call_id}:`, (apiError as Error).message);
       }
 
       // TRY 2: Create minimal fallback transcript
@@ -190,7 +190,7 @@ export async function POST(request: NextRequest) {
           console.error(`❌ End time update failed for ${conv.ultravox_call_id}:`, timeError);
         }
       } catch (timeUpdateError) {
-        console.error(`❌ Time update error for ${conv.ultravox_call_id}:`, timeUpdateError);
+        console.error(`❌ Time update error for ${conv.ultravox_call_id}:`, (timeUpdateError as Error).message);
       }
 
       results.push({
