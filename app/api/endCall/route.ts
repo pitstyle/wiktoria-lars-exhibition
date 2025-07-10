@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       const { supabase } = await import('@/lib/supabase');
       const { data: conversations, error: findError } = await supabase
         .from('conversations')
-        .select('id, full_transcript')
+        .select('id, full_transcript, start_time')
         .eq('ultravox_call_id', callId)
         .single();
 
