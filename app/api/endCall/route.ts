@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
                 endTime: new Date().toISOString()
               };
               
-              await saveFullTranscript(conversations.id, minimalTranscript, null);
+              await saveFullTranscript(conversations.id, minimalTranscript, undefined);
               transcriptSaved = true;
               console.log('✅ SUCCESS: Minimal transcript saved as fallback!');
             } catch (fallbackError) {
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
                 source: 'endCall_error_fallback'
               };
               
-              await saveFullTranscript(conversations.id, errorTranscript, null);
+              await saveFullTranscript(conversations.id, errorTranscript, undefined);
               console.log('✅ SUCCESS: Error transcript saved - better than nothing!');
             } catch (finalError) {
               console.error('❌ CATASTROPHIC: Even error transcript failed:', finalError);

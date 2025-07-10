@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
             recoveryTime: new Date().toISOString()
           };
           
-          await saveFullTranscript(conv.id, minimalTranscript, null);
+          await saveFullTranscript(conv.id, minimalTranscript, undefined);
           transcriptSaved = true;
           method = 'minimal_fallback';
           console.log(`✅ SUCCESS: Minimal transcript saved for ${conv.ultravox_call_id}`);
@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
             recoveryTime: new Date().toISOString()
           };
           
-          await saveFullTranscript(conv.id, errorTranscript, null);
+          await saveFullTranscript(conv.id, errorTranscript, undefined);
           transcriptSaved = true;
           method = 'error_fallback';
           console.log(`✅ SUCCESS: Error transcript saved for ${conv.ultravox_call_id}`);

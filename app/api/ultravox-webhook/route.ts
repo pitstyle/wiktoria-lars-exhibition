@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
               endTime: new Date().toISOString()
             };
             
-            await saveFullTranscript(conversation.id, minimalTranscript, null);
+            await saveFullTranscript(conversation.id, minimalTranscript, undefined);
             transcriptSaved = true;
             console.log('✅ SUCCESS: Webhook minimal transcript saved!');
           } catch (fallbackError) {
@@ -185,7 +185,7 @@ export async function POST(request: NextRequest) {
               source: 'webhook_error_fallback'
             };
             
-            await saveFullTranscript(conversation.id, errorTranscript, null);
+            await saveFullTranscript(conversation.id, errorTranscript, undefined);
             console.log('✅ SUCCESS: Webhook error transcript saved - better than nothing!');
           } catch (finalError) {
             console.error('❌ CATASTROPHIC: Even webhook error transcript failed:', finalError);
