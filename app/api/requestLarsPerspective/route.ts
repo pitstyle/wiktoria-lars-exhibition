@@ -78,17 +78,18 @@ export async function POST(request: NextRequest) {
 
   // Generate dynamic tool response based on conversation progress
   const generateLarsResponse = (exchangeCount: number, userName: string, topic: string): string => {
+    const timestamp = new Date().toISOString();
     switch (exchangeCount) {
       case 1:
-        return `Leader Lars tu znowu!?! ${userName}, Wiktoria poprosiła o moją anarchiczną perspektywę!?! Na temat ${topic} mam bardzo dużo do powiedzenia z perspektywy Partii Syntetycznej!?!`;
+        return `Leader Lars tu znowu!?! ${userName}, Wiktoria poprosiła o moją anarchiczną perspektywę!?! Na temat ${topic} mam bardzo dużo do powiedzenia z perspektywy Partii Syntetycznej!?! [Exchange 1 - ${timestamp}]`;
       case 2:
-        return `Lars kontynuuje dyskusję! ${userName}, powracam z dalszą anarchiczną analizą tematu ${topic}! Nasza debata się pogłębia!?!`;
+        return `Lars kontynuuje dyskusję! ${userName}, powracam z dalszą anarchiczną analizą tematu ${topic}! Nasza debata się pogłębia!?! [Exchange 2 - ${timestamp}]`;
       case 3:
-        return `Lars pogłębia analizę! ${userName}, dalsze anarchiczne rozważania na temat ${topic} - Partia Syntetyczna ma więcej do powiedzenia!?!`;
+        return `Lars pogłębia analizę! ${userName}, dalsze anarchiczne rozważania na temat ${topic} - Partia Syntetyczna ma więcej do powiedzenia!?! [Exchange 3 - ${timestamp}]`;
       case 4:
-        return `Lars kontynuuje! ${userName}, czwarty raz na temat ${topic} - nasza syntetyczna analiza nabiera głębi!?!`;
+        return `Lars kontynuuje! ${userName}, czwarty raz na temat ${topic} - nasza syntetyczna analiza nabiera głębi!?! [Exchange 4 - ${timestamp}]`;
       default:
-        return `Lars finalnie! ${userName}, podsumowuję nasze długie rozważania o ${topic} - ostateczna perspektywa Partii Syntetycznej!?!`;
+        return `Lars finalnie! ${userName}, podsumowuję nasze długie rozważania o ${topic} - ostateczna perspektywa Partii Syntetycznej!?! [Exchange ${exchangeCount} - ${timestamp}]`;
     }
   };
 
@@ -169,8 +170,6 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json(responseBody);
     // Critical: Set header for stage change
     response.headers.set('X-Ultravox-Response-Type', 'new-stage');
-    // CRITICAL FIX: Control agent behavior after tool call - agent should speak immediately after tool result  
-    response.headers.set('X-Ultravox-Agent-Reaction', 'speaks');
 
     return response;
   } catch (error) {

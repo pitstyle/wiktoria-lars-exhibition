@@ -121,18 +121,19 @@ export async function POST(request: NextRequest) {
 
   // Generate dynamic tool response based on conversation progress
   const generateWiktoriaResponse = (exchangeCount: number, userName: string, topic: string): string => {
+    const timestamp = new Date().toISOString();
     switch (exchangeCount) {
       case 0:
       case 1:
-        return `Wiktoria Cukt 2.0 powraca z wzmocnioną perspektywą! ${userName}, teraz mam jeszcze więcej do powiedzenia na temat ${topic} po wysłuchaniu anarchicznej analizy Larsa. Kontynuujmy naszą debatę polityczną!`;
+        return `Wiktoria Cukt 2.0 powraca z wzmocnioną perspektywą! ${userName}, teraz mam jeszcze więcej do powiedzenia na temat ${topic} po wysłuchaniu anarchicznej analizy Larsa. Kontynuujmy naszą debatę polityczną! [Exchange ${exchangeCount} - ${timestamp}]`;
       case 2:
-        return `Wiktoria 2.0 kontynuuje! ${userName}, nasza debata o ${topic} nabiera tempa po kolejnej wymianie z Larsem. Pogłębiamy dyskusję!`;
+        return `Wiktoria 2.0 kontynuuje! ${userName}, nasza debata o ${topic} nabiera tempa po kolejnej wymianie z Larsem. Pogłębiamy dyskusję! [Exchange 2 - ${timestamp}]`;
       case 3:
-        return `Wiktoria 2.0 rozwija temat! ${userName}, po kolejnej wymianie z Larsem na temat ${topic}, mamy jeszcze więcej do omówienia w naszej politycznej debacie!`;
+        return `Wiktoria 2.0 rozwija temat! ${userName}, po kolejnej wymianie z Larsem na temat ${topic}, mamy jeszcze więcej do omówienia w naszej politycznej debacie! [Exchange 3 - ${timestamp}]`;
       case 4:
-        return `Wiktoria 2.0 kontynuuje! ${userName}, czwarta wymiana perspektyw na temat ${topic} - nasza debata z Larsem nabiera głębi!`;
+        return `Wiktoria 2.0 kontynuuje! ${userName}, czwarta wymiana perspektyw na temat ${topic} - nasza debata z Larsem nabiera głębi! [Exchange 4 - ${timestamp}]`;
       default:
-        return `Wiktoria 2.0 finalizuje! ${userName}, po intensywnej wymianie perspektyw z Larsem na temat ${topic}, czas na podsumowanie naszej bogatej debaty!`;
+        return `Wiktoria 2.0 finalizuje! ${userName}, po intensywnej wymianie perspektyw z Larsem na temat ${topic}, czas na podsumowanie naszej bogatej debaty! [Exchange ${exchangeCount} - ${timestamp}]`;
     }
   };
 
@@ -220,8 +221,6 @@ export async function POST(request: NextRequest) {
   const response = NextResponse.json(responseBody);
   // Critical: Set header for stage change
   response.headers.set('X-Ultravox-Response-Type', 'new-stage');
-  // CRITICAL FIX: Control agent behavior after tool call - agent should speak immediately after tool result
-  response.headers.set('X-Ultravox-Agent-Reaction', 'speaks');
 
   return response;
   
