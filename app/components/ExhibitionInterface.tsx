@@ -37,12 +37,17 @@ export default function ExhibitionInterface({
   // Exhibition state
   const [isWaitingForVoice, setIsWaitingForVoice] = useState(true);
   const [sessionTimeoutId, setSessionTimeoutId] = useState<number | null>(null);
+  const [userSilenceTimeoutId, setUserSilenceTimeoutId] = useState<number | null>(null);
   const [lastActivityTime, setLastActivityTime] = useState<number>(Date.now());
+  const [lastUserTranscriptTime, setLastUserTranscriptTime] = useState<number>(Date.now());
+  const [lastAnySpeechTime, setLastAnySpeechTime] = useState<number>(Date.now()); // Track when anyone (user OR agent) last spoke
   
   // Voice and audio state
   const [voiceActivationEnabled, setVoiceActivationEnabled] = useState(true); // START ENABLED
   const [phoneToneEnabled, setPhoneToneEnabled] = useState(true); // START ENABLED FOR AMBIENT SOUND
   const [hasUserGesture, setHasUserGesture] = useState(false); // Track if we have user gesture
+  const [showAudioEnableOverlay, setShowAudioEnableOverlay] = useState(false); // Show click-to-enable overlay
+  const [userHasResponded, setUserHasResponded] = useState(false); // Track if user has spoken to Lars yet
   
   const transcriptContainerRef = useRef<HTMLDivElement>(null);
   const conversationRef = useRef<Conversation | null>(null);
@@ -52,11 +57,14 @@ export default function ExhibitionInterface({
   // Get exhibition configuration
   const modeConfig = getModeConfig();
   const sessionTimeout = modeConfig.autoTimeout || 45000; // 45 seconds default
+  const userSilenceTimeout = modeConfig.userSilenceEndCall || 12000; // 12 seconds default
   
   // Debug logging for exhibition interface
   useEffect(() => {
     console.log('🎨 Exhibition interface mounted');
     console.log('🎨 Mode config:', modeConfig);
+    console.log('🎨 Session timeout:', sessionTimeout);
+    console.log('🎨 User silence timeout:', userSilenceTimeout);
     console.log('🎨 Voice activation enabled:', voiceActivationEnabled);
     console.log('📞 Phone tone enabled:', phoneToneEnabled);
     console.log('📞 Has user gesture:', hasUserGesture);
@@ -71,6 +79,9 @@ export default function ExhibitionInterface({
     }
     simpleToneRef.current.start().catch((err) => {
       console.log('📞 Mount tone start failed:', err.message);
+      if (err.message.includes('AudioContext') || err.message.includes('user gesture') || err.message.includes('not allowed to start')) {
+        setShowAudioEnableOverlay(true);
+      }
     });
   }, []);
 
@@ -84,6 +95,9 @@ export default function ExhibitionInterface({
       }
       simpleToneRef.current.start().catch((err) => {
         console.log('📞 Auto-start failed:', err.message);
+        if (err.message.includes('AudioContext') || err.message.includes('user gesture') || err.message.includes('not allowed to start')) {
+          setShowAudioEnableOverlay(true);
+        }
       });
     }, 1000);
     
@@ -134,21 +148,257 @@ export default function ExhibitionInterface({
     }
   }, [sessionTimeoutId, isCallActive, sessionTimeout]);
 
-  // Handle status changes
-  const handleStatusChange = useCallback((status: UltravoxSessionStatus | string | undefined) => {
+  // User silence timeout management (ends call naturally after user stops speaking)
+  const resetUserSilenceTimeout = useCallback((forceActive = false) => {
+    const effectiveIsCallActive = forceActive || isCallActive;
+    console.log('🔄 Resetting user silence timeout...', { userSilenceTimeout, isCallActive: effectiveIsCallActive, forceActive, userHasResponded });
+    setLastUserTranscriptTime(Date.now());
+    
+    if (userSilenceTimeoutId) {
+      console.log('⏹️ Clearing existing user silence timeout');
+      clearTimeout(userSilenceTimeoutId);
+    }
+    
+    // Only start silence timer if call is active AND user has responded to Lars at least once
+    if (effectiveIsCallActive && userSilenceTimeout && userHasResponded) {
+      console.log(`⏰ Starting true silence detection: ${userSilenceTimeout}ms`);
+      
+      // Use polling to check for true silence (no speech from anyone)
+      const checkForSilence = () => {
+        const now = Date.now();
+        const timeSinceLastSpeech = now - lastAnySpeechTime;
+        console.log(`🔍 SILENCE CHECK: ${timeSinceLastSpeech}ms since last speech (threshold: ${userSilenceTimeout}ms)`);
+        console.log(`🔍 Times: now=${now}, lastSpeech=${lastAnySpeechTime}, diff=${timeSinceLastSpeech}`);
+        
+        if (timeSinceLastSpeech >= userSilenceTimeout) {
+          console.log(`⏰ SILENCE TIMEOUT TRIGGERED! ${timeSinceLastSpeech}ms >= ${userSilenceTimeout}ms`);
+          console.log('🤐 True silence detected - ending call naturally');
+          handleSilenceTimeout();
+        } else {
+          // Schedule next check
+          const remainingTime = userSilenceTimeout - timeSinceLastSpeech;
+          const nextCheckTime = Math.min(remainingTime, 1000); // Check every 1s or when timeout should occur
+          const timeoutId = window.setTimeout(checkForSilence, nextCheckTime);
+          setUserSilenceTimeoutId(timeoutId);
+        }
+      };
+      
+      // Start checking after a small delay
+      const timeoutId = window.setTimeout(checkForSilence, 1000);
+      setUserSilenceTimeoutId(timeoutId);
+      
+    } else {
+      console.log('❌ Not setting silence timeout:', { isCallActive: effectiveIsCallActive, userSilenceTimeout, userHasResponded });
+    }
+    
+    // Helper function to handle silence timeout
+    const handleSilenceTimeout = async () => {
+      try {
+        setAgentStatus('Ending call due to silence...');
+        
+        // Clear all timeouts
+        if (userSilenceTimeoutId) {
+          clearTimeout(userSilenceTimeoutId);
+          setUserSilenceTimeoutId(null);
+        }
+        
+        // End call and return to waiting
+        console.log('🔚 CALLING endCall() function...');
+        await endCall();
+        console.log('🔚 endCall() completed, session should disconnect now');
+        
+        // Reset all state to waiting state manually (can't reference returnToWaitingState due to hoisting)
+        console.log('🔄 SILENCE TRIGGERED: Manually resetting state to waiting mode');
+        setIsCallActive(false);
+        setIsWaitingForVoice(true);
+        setPhoneToneEnabled(true);
+        setVoiceActivationEnabled(true);
+        setCallTranscript([]);
+        setCurrentConversation(null);
+        setUltravoxCallId(null);
+        conversationRef.current = null;
+        setAgentStatus('ready');
+        setUserHasResponded(false);
+        setLastAnySpeechTime(Date.now());
+        
+        // Force restart phone tone
+        setTimeout(() => {
+          console.log('📞 Force restarting phone tone after silence timeout...');
+          if (!simpleToneRef.current) {
+            simpleToneRef.current = new SimplePhoneTone(0.05);
+          }
+          simpleToneRef.current.start().catch((err) => {
+            console.log('📞 Force restart failed:', err.message);
+            if (err.message.includes('AudioContext') || err.message.includes('user gesture') || err.message.includes('not allowed to start')) {
+              setShowAudioEnableOverlay(true);
+            }
+          });
+        }, 100);
+        
+        onSessionEnd?.();
+        console.log('✅ SILENCE TIMEOUT COMPLETE: Exhibition session ended due to true silence, app ready for next user');
+        
+      } catch (error) {
+        console.error('❌ Error ending call due to silence:', error);
+      }
+    };
+  }, [userSilenceTimeoutId, isCallActive, userSilenceTimeout, userHasResponded, lastAnySpeechTime, onSessionEnd]);
+
+  // Clear user silence timeout
+  const clearUserSilenceTimeout = useCallback(() => {
+    if (userSilenceTimeoutId) {
+      clearTimeout(userSilenceTimeoutId);
+      setUserSilenceTimeoutId(null);
+    }
+  }, [userSilenceTimeoutId]);
+
+  // Unified return to waiting state function (voice-only exhibition)
+  const returnToWaitingState = useCallback(async (reason: string = 'unknown') => {
+    console.log(`🔄 RETURN TO WAITING STATE - Reason: ${reason}`);
+    console.log(`🔄 Current state: isCallActive=${isCallActive}, isWaitingForVoice=${isWaitingForVoice}`);
+    
+    try {
+      // Clear session timeout
+      if (sessionTimeoutId) {
+        clearTimeout(sessionTimeoutId);
+        setSessionTimeoutId(null);
+      }
+      
+      // Clear user silence timeout
+      clearUserSilenceTimeout();
+      
+      // Archive conversation if it exists
+      if (currentConversation && ultravoxCallId) {
+        try {
+          const response = await fetch('/api/fetch-ultravox-data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              callId: ultravoxCallId,
+              conversationId: currentConversation.id 
+            })
+          });
+          
+          if (response.ok) {
+            console.log('💾 Exhibition transcript archived successfully');
+          }
+          
+          await updateConversationEnd(currentConversation.id, callTranscript?.length || 0);
+        } catch (error) {
+          console.error('❌ Failed to archive exhibition conversation:', error);
+        }
+      }
+      
+      // Reset all state to waiting state
+      setIsCallActive(false);
+      setIsWaitingForVoice(true);
+      setPhoneToneEnabled(true); // Restart phone tone
+      setVoiceActivationEnabled(true);
+      setCallTranscript([]);
+      setCurrentConversation(null);
+      setUltravoxCallId(null);
+      conversationRef.current = null;
+      setAgentStatus('ready');
+      setUserHasResponded(false); // Reset user response tracking for next call
+      setLastAnySpeechTime(Date.now()); // Reset speech tracking for next call
+      
+      // Force restart phone tone after state reset (always try, user gesture may persist)
+      setTimeout(() => {
+        console.log('📞 Force restarting phone tone in returnToWaitingState...');
+        if (!simpleToneRef.current) {
+          simpleToneRef.current = new SimplePhoneTone(0.05);
+        }
+        simpleToneRef.current.start().catch((err) => {
+          console.log('📞 Force restart failed (may need user gesture):', err.message);
+          if (err.message.includes('AudioContext') || err.message.includes('user gesture') || err.message.includes('not allowed to start')) {
+            setShowAudioEnableOverlay(true);
+          }
+        });
+      }, 100);
+      
+      onSessionEnd?.();
+      console.log('✅ RETURN TO WAITING COMPLETE - Exhibition session ended, app ready for next user');
+      console.log(`✅ Final state: isCallActive=false, isWaitingForVoice=true, phoneToneEnabled=true, agentStatus=ready`);
+    } catch (error) {
+      console.error('❌ Error returning to waiting state:', error);
+      setAgentStatus(`Error: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }, [sessionTimeoutId, currentConversation, ultravoxCallId, callTranscript, onSessionEnd, clearUserSilenceTimeout, hasUserGesture]);
+
+  // Handle status changes (voice-only exhibition)
+  const handleStatusChange = useCallback(async (status: UltravoxSessionStatus | string | undefined) => {
+    console.log('📡 Ultravox status change:', status);
+    
     if (status) {
       setAgentStatus(status);
       resetSessionTimeout(); // Reset timeout on any activity
+      
+      // CRITICAL: Detect when Ultravox indicates call has ended naturally
+      if (status === 'disconnected' || status === 'disconnecting') {
+        console.log(`🔌 Ultravox session ${status} - forcing return to waiting state`);
+        console.log(`🔌 Current states: isCallActive=${isCallActive}, isWaitingForVoice=${isWaitingForVoice}`);
+        
+        // FORCE immediate state reset regardless of current state to fix race condition
+        console.log('🔌 Forcing immediate state reset to prevent navigation failure');
+        setIsCallActive(false);
+        setIsWaitingForVoice(true);
+        setPhoneToneEnabled(true);
+        setAgentStatus('ready');
+        
+        // Then call the full cleanup function
+        console.log('🔌 Calling full cleanup function');
+        await returnToWaitingState('ultravox session ended');
+        return;
+      }
     } else {
       setAgentStatus('ready');
     }
-  }, [resetSessionTimeout]);
+  }, [resetSessionTimeout, isCallActive, isWaitingForVoice, returnToWaitingState]);
 
   // Handle transcript changes with agent detection
   const handleTranscriptChange = useCallback(async (transcripts: Transcript[] | undefined) => {
     if (transcripts) {
       setCallTranscript([...transcripts]);
       resetSessionTimeout(); // Reset timeout on transcript activity
+      
+      // Update last speech time for anyone speaking
+      const currentTime = Date.now();
+      setLastAnySpeechTime(currentTime);
+      console.log(`🔊 SPEECH DETECTED: Updated lastAnySpeechTime to ${currentTime}`);
+      
+      // User silence timeout logic: Reset when user speaks, let it continue when only agent speaks
+      const userTranscripts = transcripts.filter(t => t.speaker === 'user');
+      const agentTranscripts = transcripts.filter(t => t.speaker === 'agent');
+      
+      console.log('📝 Transcript update:', { 
+        totalTranscripts: transcripts.length, 
+        userCount: userTranscripts.length, 
+        agentCount: agentTranscripts.length,
+        lastAnySpeech: new Date(currentTime).toLocaleTimeString()
+      });
+      
+      if (userTranscripts.length > 0) {
+        const latestUserTranscript = userTranscripts[userTranscripts.length - 1];
+        console.log('👤 Latest user transcript:', latestUserTranscript.text);
+        // Reset user silence timeout when user actually speaks
+        if (latestUserTranscript && latestUserTranscript.text.trim().length > 0) {
+          console.log('👤 User spoke - resetting silence timeout');
+          
+          // Mark that user has responded (enables silence detection for future)
+          if (!userHasResponded) {
+            console.log('🎯 First user response detected - enabling silence detection');
+            setUserHasResponded(true);
+          }
+          
+          resetUserSilenceTimeout();
+        }
+      } else if (agentTranscripts.length > 0) {
+        // Agent is speaking - this resets the silence timer
+        const latestAgentTranscript = agentTranscripts[agentTranscripts.length - 1];
+        console.log('🤖 Agent speaking, resetting silence timer...', latestAgentTranscript.text.substring(0, 50));
+      } else {
+        console.log('🔇 No transcripts yet...');
+      }
       
       // Agent detection logic (same as main app)
       transcripts.forEach((transcript) => {
@@ -163,8 +413,7 @@ export default function ExhibitionInterface({
         }
       });
       
-      // Content-based agent detection
-      const agentTranscripts = transcripts.filter(t => t.speaker === 'agent');
+      // Content-based agent detection (reuse agentTranscripts from above)
       if (agentTranscripts.length > 0) {
         const latestAgentTranscript = agentTranscripts[agentTranscripts.length - 1];
         const text = latestAgentTranscript.text.toLowerCase();
@@ -190,9 +439,20 @@ export default function ExhibitionInterface({
           setCurrentAgent('wiktoria');
           setCurrentVoiceId('2e40bf21-8c36-45db-a408-5a3fc8d833db');
         }
+        
+        // Check if conversation ended naturally with goodbye message
+        const endPattern = /dziękuję za rozmowę.*dobiegła końca.*do zobaczenia/i;
+        if (endPattern.test(latestAgentTranscript.text)) {
+          console.log('👋 End message detected - conversation finished naturally');
+          // Give time for message to complete, then return to waiting
+          setTimeout(async () => {
+            console.log('👋 Triggering return to waiting after end message');
+            await returnToWaitingState('natural conversation end');
+          }, 2000);
+        }
       }
     }
-  }, [resetSessionTimeout]);
+  }, [resetSessionTimeout, resetUserSilenceTimeout, returnToWaitingState, phoneToneEnabled]);
 
   // Handle debug messages
   const handleDebugMessage = useCallback((debugMessage: UltravoxExperimentalMessageEvent) => {
@@ -275,6 +535,7 @@ export default function ExhibitionInterface({
       setUltravoxCallId(callData.callId);
       setIsCallActive(true);
       resetSessionTimeout(); // Start session timeout
+      // DO NOT start user silence timeout yet - wait for first user response to Lars
       onSessionStart?.();
       
       console.log('✅ Exhibition call started successfully');
@@ -286,79 +547,57 @@ export default function ExhibitionInterface({
       setIsWaitingForVoice(true);
       setPhoneToneEnabled(true);
     }
-  }, [isCallActive, handleStatusChange, handleTranscriptChange, handleDebugMessage, resetSessionTimeout, onSessionStart, showDebugInfo]);
+  }, [isCallActive, handleStatusChange, handleTranscriptChange, handleDebugMessage, resetSessionTimeout, resetUserSilenceTimeout, onSessionStart, showDebugInfo]);
 
-  // End call function
+  // End call function (session timeout or user silence - calls endCall then returns to waiting)
   const handleEndCallButtonClick = useCallback(async () => {
     try {
-      console.log('🛑 Ending exhibition call');
+      console.log('⏰ Ending call (timeout or silence detected)');
       setAgentStatus('Ending call...');
       
-      // Clear session timeout
-      if (sessionTimeoutId) {
-        clearTimeout(sessionTimeoutId);
-        setSessionTimeoutId(null);
-      }
+      // Clear all timeouts
+      clearUserSilenceTimeout();
       
       await endCall();
-      setIsCallActive(false);
-
-      // Archive conversation
-      if (currentConversation && ultravoxCallId) {
-        try {
-          const response = await fetch('/api/fetch-ultravox-data', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              callId: ultravoxCallId,
-              conversationId: currentConversation.id 
-            })
-          });
-          
-          if (response.ok) {
-            console.log('💾 Exhibition transcript archived successfully');
-          }
-          
-          await updateConversationEnd(currentConversation.id, callTranscript?.length || 0);
-        } catch (error) {
-          console.error('❌ Failed to archive exhibition conversation:', error);
-        }
-      }
-      
-      // Reset to waiting state
-      setIsWaitingForVoice(true);
-      setPhoneToneEnabled(true); // Restart phone tone
-      setVoiceActivationEnabled(true);
-      setCallTranscript([]);
-      setCurrentConversation(null);
-      setUltravoxCallId(null);
-      conversationRef.current = null;
-      setAgentStatus('ready');
-      
-      onSessionEnd?.();
-      console.log('✅ Exhibition session ended, returning to waiting state');
+      await returnToWaitingState('call ended');
     } catch (error) {
       console.error('❌ Error ending exhibition call:', error);
       setAgentStatus(`Error ending: ${error instanceof Error ? error.message : String(error)}`);
     }
-  }, [sessionTimeoutId, currentConversation, ultravoxCallId, callTranscript, onSessionEnd]);
+  }, [returnToWaitingState, clearUserSilenceTimeout]);
 
   // Voice activity handlers
   const handleVoiceStart = useCallback(() => {
     console.log('🎤 Voice activity detected in exhibition');
     resetSessionTimeout();
     
-    // Retry phone tone after first voice activity (user gesture achieved)
+    // Reset user silence timeout when user speaks
+    if (isCallActive) {
+      console.log('👤 User voice activity - resetting silence timeout');
+      resetUserSilenceTimeout();
+    }
+    
+    // Capture user gesture for AudioContext - create/resume tone
     if (!hasUserGesture) {
-      console.log('📞 User gesture detected - retrying simple tone');
+      console.log('📞 User gesture detected - initializing AudioContext for tone');
       setHasUserGesture(true);
       
-      // Retry starting the simple tone now that we have user gesture
+      // Initialize SimplePhoneTone with user gesture
+      if (!simpleToneRef.current) {
+        simpleToneRef.current = new SimplePhoneTone(0.05);
+      }
+      
+      // Try to start tone now with user gesture
+      if (phoneToneEnabled && isWaitingForVoice) {
+        simpleToneRef.current.start().catch(console.error);
+      }
+    } else {
+      // User gesture already captured, try to restart tone if needed
       if (simpleToneRef.current && phoneToneEnabled && isWaitingForVoice) {
         simpleToneRef.current.start().catch(console.error);
       }
     }
-  }, [resetSessionTimeout, hasUserGesture, phoneToneEnabled, isWaitingForVoice]);
+  }, [resetSessionTimeout, resetUserSilenceTimeout, isCallActive, hasUserGesture, phoneToneEnabled, isWaitingForVoice]);
 
   const handleVoiceEnd = useCallback(() => {
     console.log('🎤 Voice activity ended in exhibition');
@@ -375,6 +614,24 @@ export default function ExhibitionInterface({
 
   // No button handlers needed - pure voice activation
 
+  // Handle click to enable audio
+  const handleEnableAudio = useCallback(async () => {
+    console.log('📞 User clicked to enable audio');
+    setHasUserGesture(true);
+    setShowAudioEnableOverlay(false);
+    
+    if (!simpleToneRef.current) {
+      simpleToneRef.current = new SimplePhoneTone(0.05);
+    }
+    
+    try {
+      await simpleToneRef.current.start();
+      console.log('✅ Audio enabled successfully after user click');
+    } catch (error) {
+      console.error('❌ Audio still failed after user click:', error);
+    }
+  }, []);
+
   // Get current agent display name
   const getCurrentAgentLabel = () => {
     return currentAgent === 'lars' ? 'LEADER LARS' : 'WIKTORIA CUKT 2.0';
@@ -382,6 +639,23 @@ export default function ExhibitionInterface({
 
   return (
     <div className="exhibition-interface h-screen w-full bg-black text-white flex flex-col">
+      {/* Audio Enable Overlay */}
+      {showAudioEnableOverlay && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
+          <div className="text-center p-8">
+            <div className="text-6xl mb-4">🔊</div>
+            <h2 className="text-3xl font-bold mb-4">Enable Audio</h2>
+            <p className="text-xl mb-6 text-gray-300">Click to activate exhibition sound</p>
+            <button
+              onClick={handleEnableAudio}
+              className="bg-white text-black px-8 py-4 text-xl font-bold rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              Enable Sound
+            </button>
+          </div>
+        </div>
+      )}
+      
       {/* Minimal Header */}
       <div className="p-6 text-center">
         <h1 className="text-4xl font-bold mb-2">AI POLITICAL PERFORMANCE</h1>
@@ -471,6 +745,7 @@ export default function ExhibitionInterface({
             {/* Voice Activation Component */}
             <VoiceActivation
               enabled={voiceActivationEnabled}
+              isCallActive={isCallActive}
               onVoiceActivation={handleVoiceActivation}
               onVoiceStart={handleVoiceStart}
               onVoiceEnd={handleVoiceEnd}
