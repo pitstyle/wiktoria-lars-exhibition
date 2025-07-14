@@ -1,4 +1,24 @@
-# Raspberry Pi Bluetooth Headphones Setup
+# ⚠️ DEPRECATED: Raspberry Pi Bluetooth Headphones Setup
+
+## 🚨 THIS DOCUMENT IS DEPRECATED
+
+**DO NOT USE THIS APPROACH - USB ADAPTERS ARE THE CURRENT SOLUTION**
+
+### Why This is Deprecated:
+- **Unreliable**: Bluetooth connection drops during exhibitions
+- **Complex Setup**: Requires PulseAudio, profile switching, pairing
+- **Audio Quality Issues**: Latency and compression problems
+- **Exhibition Risk**: Not suitable for 8+ hour operation
+
+### ✅ Current Solution:
+**Use USB audio adapters with TRRS/4-pole support**
+- See `docs/pi-deployment/LESSONS_LEARNED.md` for current setup
+- Direct handset connection via USB adapter
+- No Bluetooth configuration needed
+
+---
+
+## Legacy Bluetooth Setup (FOR REFERENCE ONLY)
 
 ## Prerequisites
 - Bluetooth-enabled headphones (with microphone)
