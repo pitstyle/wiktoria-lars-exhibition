@@ -79,14 +79,20 @@ export async function startCall(callbacks: CallCallbacks, callConfig: CallConfig
 
     if (uvSession) {
       uvSession.addEventListener('status', (event: any) => {
-        callbacks.onStatusChange(uvSession?.status);
+        console.log('🎯 STATUS EVENT FIRED:', uvSession?.status, event);
+        // Try to get status from event if uvSession.status is undefined
+        const status = uvSession?.status || event?.detail?.status || event?.status;
+        console.log('🎯 RESOLVED STATUS:', status);
+        callbacks.onStatusChange(status);
       });
   
       uvSession.addEventListener('transcripts', (event: any) => {
+        console.log('🎯 TRANSCRIPT EVENT FIRED:', uvSession?.transcripts?.length, 'transcripts');
         callbacks.onTranscriptChange(uvSession?.transcripts);
       });
   
       uvSession.addEventListener('experimental_message', (msg: any) => {
+        console.log('🎯 DEBUG MESSAGE EVENT FIRED:', msg);
         callbacks?.onDebugMessage?.(msg);
       });
 

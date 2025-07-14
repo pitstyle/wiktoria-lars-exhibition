@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getWiktoriaEngagerPrompt, WIKTORIA_VOICE } from '@/app/lars-wiktoria-enhanced-config';
 import { ParameterLocation, KnownParamEnum } from '@/lib/types';
 import { saveConversationContext, enhanceAgentPrompt } from '@/lib/conversationMemory';
-import { supabase, saveTranscript } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,86 +18,6 @@ export async function POST(request: NextRequest) {
   // Update conversation metadata
   const newExchangeCount = currentExchangeCount;
   const newConversationPhase = currentExchangeCount <= 1 ? "early" : currentExchangeCount <= 2 ? "mid" : "late";
-
-  // Get conversation ID for memory enhancement
-  let conversationId: string | null = null;
-  const { callId } = body;
-  if (callId) {
-    try {
-      const { data: conversation } = await supabase
-        .from('conversations')
-        .select('id')
-        .eq('ultravox_call_id', callId)
-        .single();
-      conversationId = conversation?.id || null;
-    } catch (error) {
-      console.warn('Could not find conversation for memory enhancement:', error);
-    }
-  }
-
-  // Save Lars's perspective to memory and transcript - CRITICAL for Stage 3 (UNCONDITIONAL SAVE)
-  if (conversationId) {
-    try {
-      // FORCE CREATE CONTENT - don't depend on missing larsPerspective
-      const contentPerspective = larsPerspective || `Lars provided anarchic perspective on ${topic || 'the discussed topic'} with Partii Syntetycznej analysis`;
-      const contentInsights = userInsights || `User engagement and feedback collected during discussion about ${topic || 'the topic'}`;
-      
-      await saveConversationContext(
-        conversationId,
-        'agent_statement',
-        { 
-          position: contentPerspective,
-          topic: topic,
-          agent: 'lars'
-        },
-        'lars_perspective',
-        'lars'
-      );
-      console.log(`✅ Saved Lars's perspective to memory`);
-      
-      // Save Lars's perspective stage as transcript immediately
-      const transcriptData = {
-        conversation_id: conversationId,
-        speaker: 'lars' as const,
-        stage: 'lars_perspective',
-        content: `Lars provided anarchic perspective on ${topic || 'topic'}: ${contentPerspective}. User insights: ${contentInsights}. Exchange count: ${currentExchangeCount}`
-      };
-      console.log(`🔍 FORCED Lars transcript data:`, transcriptData);
-      
-      await saveTranscript(transcriptData);
-      console.log(`✅ SUCCESS: Lars perspective transcript FORCED SAVE for conversation: ${conversationId}, callId: ${callId}`);
-      
-    } catch (error) {
-      console.error(`❌ Failed to save Lars's perspective for callId: ${callId}:`, error);
-      console.error(`Error details:`, {
-        callId,
-        userName,
-        topic,
-        larsPerspective: larsPerspective ? 'present' : 'missing',
-        userInsights: userInsights ? 'present' : 'missing',
-        conversationId
-      });
-    }
-  }
-
-  // Save user insights to memory (UNCONDITIONAL if conversationId exists)
-  if (conversationId) {
-    try {
-      await saveConversationContext(
-        conversationId,
-        'user_preference',
-        { 
-          insights: userInsights || `User insights collected during discussion about ${topic || 'the topic'}`,
-          topic: topic
-        },
-        'lars_perspective',
-        'user'
-      );
-      console.log(`✅ Saved user insights to memory`);
-    } catch (error) {
-      console.error(`❌ Failed to save user insights for callId: ${callId}:`, error);
-    }
-  }
 
   // SIMPLE APPROACH: Keep memory clean and character voices distinct
 

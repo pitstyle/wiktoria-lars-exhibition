@@ -48,6 +48,7 @@ export default function ExhibitionInterface({
   const [hasUserGesture, setHasUserGesture] = useState(false); // Track if we have user gesture
   const [showAudioEnableOverlay, setShowAudioEnableOverlay] = useState(false); // Show click-to-enable overlay
   const [userHasResponded, setUserHasResponded] = useState(false); // Track if user has spoken to Lars yet
+  const [conversationEnding, setConversationEnding] = useState(false); // Prevent duplicate end triggers
   
   const transcriptContainerRef = useRef<HTMLDivElement>(null);
   const conversationRef = useRef<Conversation | null>(null);
@@ -59,8 +60,36 @@ export default function ExhibitionInterface({
   const sessionTimeout = modeConfig.autoTimeout || 45000; // 45 seconds default
   const userSilenceTimeout = modeConfig.userSilenceEndCall || 12000; // 12 seconds default
   
-  // Debug logging for exhibition interface
+  // Debug logging for exhibition interface + LOG CAPTURE
   useEffect(() => {
+    // CAPTURE CONSOLE LOGS FOR DEBUGGING
+    const originalLog = console.log;
+    const originalError = console.error;
+    const logBuffer: string[] = [];
+    
+    console.log = (...args) => {
+      const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
+      logBuffer.push(`[LOG] ${new Date().toISOString()}: ${message}`);
+      originalLog.apply(console, args);
+      
+      // Save to localStorage every 10 logs
+      if (logBuffer.length % 10 === 0) {
+        localStorage.setItem('exhibition_logs', JSON.stringify(logBuffer));
+      }
+      
+      // Also save final logs on key events
+      if (message.includes('💾') || message.includes('🔄') || message.includes('🔗')) {
+        localStorage.setItem('exhibition_logs', JSON.stringify(logBuffer));
+      }
+    };
+    
+    console.error = (...args) => {
+      const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
+      logBuffer.push(`[ERROR] ${new Date().toISOString()}: ${message}`);
+      originalError.apply(console, args);
+      localStorage.setItem('exhibition_logs', JSON.stringify(logBuffer));
+    };
+    
     console.log('🎨 Exhibition interface mounted');
     console.log('🎨 Mode config:', modeConfig);
     console.log('🎨 Session timeout:', sessionTimeout);
@@ -106,10 +135,10 @@ export default function ExhibitionInterface({
 
   // Simple tone management
   useEffect(() => {
-    const agentTranscripts = callTranscript?.filter(t => t.speaker === 'agent') || [];
-    console.log('📞 Simple tone effect:', { phoneToneEnabled, isWaitingForVoice, agentCount: agentTranscripts.length });
+    console.log('📞 Simple tone effect:', { phoneToneEnabled, isWaitingForVoice, isCallActive });
     
-    if (phoneToneEnabled && (isWaitingForVoice || (isCallActive && agentTranscripts.length === 0))) {
+    // SIMPLIFIED: Only play tone when waiting for voice AND tone is enabled
+    if (phoneToneEnabled && isWaitingForVoice && !isCallActive) {
       console.log('📞 Starting simple tone...');
       if (!simpleToneRef.current) {
         simpleToneRef.current = new SimplePhoneTone(0.05); // Quiet volume
@@ -121,7 +150,7 @@ export default function ExhibitionInterface({
       console.log('📞 Stopping simple tone...');
       simpleToneRef.current.stop();
     }
-  }, [phoneToneEnabled, isWaitingForVoice, isCallActive, callTranscript]);
+  }, [phoneToneEnabled, isWaitingForVoice, isCallActive]);
 
   // Auto-scroll transcript
   useEffect(() => {
@@ -257,6 +286,7 @@ export default function ExhibitionInterface({
   const returnToWaitingState = useCallback(async (reason: string = 'unknown') => {
     console.log(`🔄 RETURN TO WAITING STATE - Reason: ${reason}`);
     console.log(`🔄 Current state: isCallActive=${isCallActive}, isWaitingForVoice=${isWaitingForVoice}`);
+    console.log(`🔄 Conversation data: currentConversation=${currentConversation?.id}, ultravoxCallId=${ultravoxCallId}`);
     
     try {
       // Clear session timeout
@@ -268,62 +298,25 @@ export default function ExhibitionInterface({
       // Clear user silence timeout
       clearUserSilenceTimeout();
       
-      // Archive conversation if it exists - SAVE TO SUPABASE DATABASE (NON-BLOCKING)
-      if (currentConversation && ultravoxCallId) {
-        // Save to database ASYNCHRONOUSLY to avoid blocking UI navigation
-        console.log('💾 Starting async database save (non-blocking)...');
-        
-        // Use setImmediate to ensure database saving doesn't block UI state reset
-        setImmediate(async () => {
-          try {
-            console.log('💾 Saving conversation to Supabase database...');
-            
-            // First, try to get the full transcript from Ultravox
-            let fullTranscript = null;
-            let transcriptCount = 0;
-            
-            try {
-              console.log('🔄 Fetching transcript from Ultravox API...');
-              const messagesResponse = await fetch(`https://api.ultravox.ai/api/calls/${ultravoxCallId}/messages`, {
-                headers: {
-                  'X-API-Key': `${process.env.ULTRAVOX_API_KEY}`,
-                },
-              });
-              
-              if (messagesResponse.ok) {
-                fullTranscript = await messagesResponse.json();
-                transcriptCount = fullTranscript.results?.length || 0;
-                console.log(`✅ Retrieved transcript: ${transcriptCount} messages`);
-              } else {
-                console.warn('⚠️ Failed to fetch transcript from Ultravox:', messagesResponse.status);
-              }
-            } catch (transcriptError) {
-              console.warn('⚠️ Error fetching transcript:', transcriptError);
-            }
-            
-            // Save full transcript to database
-            if (fullTranscript) {
-              try {
-                await saveFullTranscript(currentConversation.id, fullTranscript);
-                console.log('✅ Full transcript saved to Supabase database');
-              } catch (transcriptError) {
-                console.error('❌ Failed to save full transcript:', transcriptError);
-              }
-            }
-            
-            // Update conversation end time and message count
-            try {
-              await updateConversationEnd(currentConversation.id, transcriptCount || callTranscript?.length || 0);
-              console.log('✅ Conversation end time updated in database');
-            } catch (dbError) {
-              console.error('❌ Database update failed:', dbError);
-            }
-            
-          } catch (error) {
-            console.error('❌ Failed to save conversation to database:', error);
+      // SIMPLE TRANSCRIPT SAVE - Just fetch from Ultravox and save to last conversation
+      setTimeout(async () => {
+        try {
+          console.log('💾 Saving transcript from Ultravox...');
+          const response = await fetch('/api/save-last-transcript', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            console.log('✅ Transcript saved:', result);
+          } else {
+            console.warn('⚠️ Transcript save failed:', response.status);
           }
-        });
-      }
+        } catch (error) {
+          console.error('❌ Failed to save transcript:', error);
+        }
+      }, 2000); // Wait 2 seconds for call to fully end
       
       // Reset all state to waiting state
       setIsCallActive(false);
@@ -337,20 +330,10 @@ export default function ExhibitionInterface({
       setAgentStatus('ready');
       setUserHasResponded(false); // Reset user response tracking for next call
       setLastAnySpeechTime(Date.now()); // Reset speech tracking for next call
+      setConversationEnding(false); // Reset conversation ending flag
       
-      // Force restart phone tone after state reset (always try, user gesture may persist)
-      setTimeout(() => {
-        console.log('📞 Force restarting phone tone in returnToWaitingState...');
-        if (!simpleToneRef.current) {
-          simpleToneRef.current = new SimplePhoneTone(0.05);
-        }
-        simpleToneRef.current.start().catch((err) => {
-          console.log('📞 Force restart failed (may need user gesture):', err.message);
-          if (err.message.includes('AudioContext') || err.message.includes('user gesture') || err.message.includes('not allowed to start')) {
-            setShowAudioEnableOverlay(true);
-          }
-        });
-      }, 100);
+      // Let main tone effect handle restart based on state changes
+      console.log('📞 State reset complete - main tone effect will handle restart');
       
       onSessionEnd?.();
       console.log('✅ RETURN TO WAITING COMPLETE - Exhibition session ended, app ready for next user');
@@ -478,8 +461,9 @@ export default function ExhibitionInterface({
         
         // Check if conversation ended naturally with goodbye message
         const endPattern = /dziękuję za rozmowę.*dobiegła końca.*do zobaczenia/i;
-        if (endPattern.test(latestAgentTranscript.text)) {
+        if (endPattern.test(latestAgentTranscript.text) && !conversationEnding) {
           console.log('👋 End message detected - conversation finished naturally');
+          setConversationEnding(true); // Prevent duplicate triggers
           // Give time for message to complete, then return to waiting
           setTimeout(async () => {
             console.log('👋 Triggering return to waiting after end message');
@@ -488,7 +472,7 @@ export default function ExhibitionInterface({
         }
       }
     }
-  }, [resetSessionTimeout, resetUserSilenceTimeout, returnToWaitingState, phoneToneEnabled]);
+  }, [resetSessionTimeout, resetUserSilenceTimeout, returnToWaitingState, phoneToneEnabled, conversationEnding]);
 
   // Handle debug messages
   const handleDebugMessage = useCallback((debugMessage: UltravoxExperimentalMessageEvent) => {
@@ -521,6 +505,7 @@ export default function ExhibitionInterface({
       
       setAgentStatus('Starting voice call...');
       setCallTranscript([]);
+      setConversationEnding(false); // Reset conversation ending flag for new call
       
       // Generate call key
       const newKey = `exhibition-${Date.now()}`;
@@ -556,7 +541,8 @@ export default function ExhibitionInterface({
         
         conversationRef.current = conversation;
         setCurrentConversation(conversation);
-        console.log('💾 Exhibition conversation created:', conversation.id);
+        console.log('💾 EXHIBITION CONVERSATION CREATED:', conversation.id);
+        console.log('💾 CONVERSATION OBJECT:', conversation);
       } catch (error) {
         console.error('❌ Failed to create exhibition conversation:', error);
       }
@@ -569,6 +555,7 @@ export default function ExhibitionInterface({
       }, callConfig, showDebugInfo);
 
       setUltravoxCallId(callData.callId);
+      console.log(`🔗 ULTRAVOX CALL ID SET: ${callData.callId}`);
       setIsCallActive(true);
       resetSessionTimeout(); // Start session timeout
       // DO NOT start user silence timeout yet - wait for first user response to Lars
@@ -623,14 +610,13 @@ export default function ExhibitionInterface({
         simpleToneRef.current = new SimplePhoneTone(0.05);
       }
       
-      // Try to start tone now with user gesture
-      if (phoneToneEnabled && isWaitingForVoice) {
-        simpleToneRef.current.start().catch(console.error);
-      }
+      // AudioContext initialized, let main effect handle tone management
+      console.log('📞 AudioContext ready - tone management handled by main effect');
     } else {
-      // User gesture already captured, try to restart tone if needed
-      if (simpleToneRef.current && phoneToneEnabled && isWaitingForVoice) {
-        simpleToneRef.current.start().catch(console.error);
+      // User is speaking - stop tone if playing
+      if (simpleToneRef.current) {
+        console.log('📞 User speaking - stopping tone');
+        simpleToneRef.current.stop();
       }
     }
   }, [resetSessionTimeout, resetUserSilenceTimeout, isCallActive, hasUserGesture, phoneToneEnabled, isWaitingForVoice]);
@@ -836,6 +822,7 @@ export default function ExhibitionInterface({
               ))}
             </div>
 
+
             {/* Session Info */}
             {showDebugInfo && (
               <div className="text-center text-xs text-gray-500">
@@ -857,6 +844,26 @@ export default function ExhibitionInterface({
           <div className="flex justify-between items-center">
             <div>Mode: {modeConfig.mode} | Voice: {voiceActivationEnabled ? 'ON' : 'OFF'} | Phone Tone: {phoneToneEnabled ? 'ON' : 'OFF'}</div>
             <div className="space-x-2">
+              <button
+                onClick={() => {
+                  const logs = localStorage.getItem('exhibition_logs');
+                  if (logs) {
+                    const blob = new Blob([JSON.parse(logs).join('\n')], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'exhibition_logs.txt';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  } else {
+                    alert('No logs available');
+                  }
+                }}
+                className="px-3 py-1 bg-purple-600 rounded hover:bg-purple-700"
+              >
+                📋 Download Logs
+              </button>
+              
               {isCallActive ? (
                 <button
                   onClick={handleEndCallButtonClick}
@@ -876,6 +883,29 @@ export default function ExhibitionInterface({
           </div>
         </div>
       )}
+      
+      {/* Always visible log download button */}
+      <div className="fixed bottom-4 right-4">
+        <button
+          onClick={() => {
+            const logs = localStorage.getItem('exhibition_logs');
+            if (logs) {
+              const blob = new Blob([JSON.parse(logs).join('\n')], { type: 'text/plain' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'exhibition_logs.txt';
+              a.click();
+              URL.revokeObjectURL(url);
+            } else {
+              alert('No logs available');
+            }
+          }}
+          className="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 text-xs"
+        >
+          📋 Logs
+        </button>
+      </div>
     </div>
   );
 }

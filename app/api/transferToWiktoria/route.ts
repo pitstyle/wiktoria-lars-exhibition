@@ -123,14 +123,7 @@ export async function POST(request: NextRequest) {
         });
         console.log(`✅ Conversation saved successfully to Supabase: ${conversation.id}`);
 
-        // Save Lars's initial interaction as transcript
-        await saveTranscript({
-          conversation_id: conversation.id,
-          speaker: 'lars',
-          stage: 'lars_initial', 
-          content: `Lars collected user information: Name: ${userName}, Age: ${age}, Occupation: ${occupation}, Topic: ${topic}. Introduction: ${topicIntroduction || 'Initial topic introduction'}`
-        });
-        console.log(`✅ Lars initial transcript saved`);
+        console.log(`✅ Conversation saved, transcript will be handled by ExhibitionInterface`);
       } catch (error) {
         console.error(`❌ Failed to save conversation to Supabase:`, error);
       }

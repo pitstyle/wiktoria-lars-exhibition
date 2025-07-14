@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getLarsPerspectivePrompt, LARS_VOICE } from '@/app/lars-wiktoria-enhanced-config';
 import { ParameterLocation, KnownParamEnum } from '@/lib/types';
 import { saveConversationContext, enhanceAgentPrompt } from '@/lib/conversationMemory';
-import { supabase, saveTranscript } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,59 +18,6 @@ export async function POST(request: NextRequest) {
   // Update exchange count and conversation phase
   const newExchangeCount = currentExchangeCount + 1;
   const newConversationPhase = newExchangeCount <= 1 ? "early" : newExchangeCount <= 2 ? "mid" : "late";
-
-  // Save transcript data immediately - CRITICAL for Stage 2 (UNCONDITIONAL SAVE)
-  const { callId } = body;
-  console.log(`🔍 FORCED transcript save attempt: callId=${callId}`);
-  
-  if (callId) {
-    try {
-      console.log(`🔍 Looking up conversation for callId: ${callId}`);
-      const { data: conversation, error: lookupError } = await supabase
-        .from('conversations')
-        .select('id')
-        .eq('ultravox_call_id', callId)
-        .single();
-      
-      if (lookupError) {
-        console.error(`❌ Database lookup error:`, lookupError);
-      }
-      
-      if (conversation?.id) {
-        console.log(`🔍 Found conversation: ${conversation.id}, attempting transcript save...`);
-        
-        // FORCE CREATE CONTENT - don't depend on missing wiktoriaOpinion
-        const contentOpinion = wiktoriaOpinion || `Wiktoria provided detailed political perspective on ${topic || 'the discussed topic'} with AI Presidential analysis`;
-        const contentInsights = userInsights || `User engagement and feedback collected during discussion about ${topic || 'the topic'}`;
-        
-        const transcriptData = {
-          conversation_id: conversation.id,
-          speaker: 'wiktoria' as const,
-          stage: 'wiktoria_opinion',
-          content: `Wiktoria shared opinion on ${topic || 'topic'}: ${contentOpinion}. User insights gathered: ${contentInsights}. Exchange count: ${currentExchangeCount}`
-        };
-        console.log(`🔍 FORCED transcript data:`, transcriptData);
-        
-        await saveTranscript(transcriptData);
-        console.log(`✅ SUCCESS: Wiktoria opinion transcript FORCED SAVE for conversation: ${conversation.id}, callId: ${callId}`);
-      } else {
-        console.error(`❌ No conversation found for callId: ${callId}`);
-        console.log(`🔍 Available conversations:`, await supabase.from('conversations').select('id, ultravox_call_id').limit(5));
-      }
-    } catch (error) {
-      console.error(`❌ CRITICAL ERROR saving Wiktoria opinion transcript for callId: ${callId}:`, error);
-      console.error(`Error stack:`, (error as Error).stack);
-      console.error(`Error details:`, {
-        callId,
-        userName,
-        topic,
-        wiktoriaOpinion: wiktoriaOpinion ? 'present' : 'missing',
-        userInsights: userInsights ? 'present' : 'missing'
-      });
-    }
-  } else {
-    console.log(`⚠️ NO CALLID - Cannot save transcript without callId`);
-  }
 
   // Use basic prompt to avoid memory lookup delays
   const enhancedPrompt = getLarsPerspectivePrompt();
