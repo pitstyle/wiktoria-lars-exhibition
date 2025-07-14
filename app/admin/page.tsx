@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import AnalyticsDashboard from '@/app/components/AnalyticsDashboard';
+// Analytics dashboard removed for Pi optimization
 
 export default function AdminPage() {
   return (
@@ -10,8 +10,8 @@ export default function AdminPage() {
         <h1 className="text-2xl font-bold mb-6">🔧 Wiktoria-Lars Admin Dashboard</h1>
         
         <div className="bg-gray-800 rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">💾 Database Analytics</h2>
-          <AnalyticsDashboard />
+          <h2 className="text-lg font-semibold mb-4">💾 Database Status</h2>
+          <p className="text-gray-300">Analytics dashboard removed for Pi optimization. Use Supabase dashboard for detailed analytics.</p>
         </div>
         
         <div className="mt-6 bg-gray-800 rounded-lg p-6">

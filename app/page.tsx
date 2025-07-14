@@ -9,7 +9,6 @@ import { Role, Transcript, UltravoxExperimentalMessageEvent, UltravoxSessionStat
 import CallStatus from '@/app/components/CallStatus';
 import DebugMessages from '@/app/components/DebugMessages';
 import MicToggleButton from '@/app/components/MicToggleButton';
-import AnalyticsDashboard from '@/app/components/AnalyticsDashboard';
 import ExhibitionInterface from '@/app/components/ExhibitionInterface';
 import { PhoneOffIcon } from 'lucide-react';
 import { saveConversation, saveTranscript, updateConversationEnd, Conversation } from '@/lib/supabase';

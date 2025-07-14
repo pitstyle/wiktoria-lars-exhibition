@@ -65,7 +65,6 @@ export function getModeConfig() {
     
     // Session settings
     autoTimeout: mode === 'exhibition' ? 45000 : null, // 45 seconds for exhibition (backup timeout)
-    userSilenceEndCall: mode === 'exhibition' ? 12000 : null, // 12 seconds user silence ends call naturally
     autoReset: mode === 'exhibition',
     
     // UI settings

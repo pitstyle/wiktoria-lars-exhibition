@@ -1,6 +1,6 @@
 import { CharacterVoiceProtector } from './characterVoiceProtection'
 import { getConversationMemory, getAgentKnowledge } from './conversationMemory'
-import { getConversationTracker } from './realTimeMemory'
+// Removed realTimeMemory import - functionality simplified for Pi deployment
 
 export interface SafeMemoryContext {
   userProfile: {
@@ -82,9 +82,8 @@ export class SafeMemoryEnhancer {
     // Get agent-specific knowledge
     const agentKnowledge = await getAgentKnowledge(conversationId, this.agentName)
     
-    // Get real-time conversation tracker
-    const tracker = getConversationTracker(conversationId)
-    const conversationSummary = await tracker.getConversationSummary()
+    // Real-time tracker removed for Pi optimization
+    const conversationSummary = null
 
     return {
       userProfile: {
@@ -93,19 +92,17 @@ export class SafeMemoryEnhancer {
         occupation: conversationMemory?.userProfile?.occupation || 'Unknown'
       },
       questionsAsked: [
-        ...(conversationMemory?.questionsAsked?.map(q => q.question) || []),
-        ...conversationSummary.questionsAsked
+        ...(conversationMemory?.questionsAsked?.map(q => q.question) || [])
       ].slice(-5), // Keep only recent questions
       topicsDiscussed: [
-        ...(conversationMemory?.topicsDiscussed?.map(t => t.specificTopic) || []),
-        ...conversationSummary.topicsDiscussed
+        ...(conversationMemory?.topicsDiscussed?.map(t => t.specificTopic) || [])
       ].slice(-5), // Keep only recent topics
       agentKnowledge: {
         previousStatements: agentKnowledge.previousStatements.slice(-3),
         questionsToAvoid: agentKnowledge.questionsToAvoid.slice(-5),
-        topicsToAvoid: conversationSummary.topicsDiscussed.slice(-5)
+        topicsToAvoid: []
       },
-      conversationSummary: this.createConversationSummary(conversationSummary)
+      conversationSummary: '' // Simplified for Pi deployment
     }
   }
 

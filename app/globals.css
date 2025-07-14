@@ -34,29 +34,8 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: "ReplicaLL";
-  src: url("./fonts/ReplicaLLWeb-Italic.woff2") format("woff2");
-  font-weight: normal;
-  font-style: italic;
-  font-display: swap;
-}
 
-@font-face {
-  font-family: "ReplicaLL";
-  src: url("./fonts/ReplicaLLWeb-Light.woff2") format("woff2");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
 
-@font-face {
-  font-family: "ReplicaLL";
-  src: url("./fonts/ReplicaLLWeb-LightItalic.woff2") format("woff2");
-  font-weight: 300;
-  font-style: italic;
-  font-display: swap;
-}
 
 @font-face {
   font-family: "ReplicaLL";
@@ -66,29 +45,8 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: "ReplicaLL";
-  src: url("./fonts/ReplicaLLWeb-BoldItalic.woff2") format("woff2");
-  font-weight: 700;
-  font-style: italic;
-  font-display: swap;
-}
 
-@font-face {
-  font-family: "ReplicaLL";
-  src: url("./fonts/ReplicaLLWeb-Heavy.woff2") format("woff2");
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
 
-@font-face {
-  font-family: "ReplicaLL";
-  src: url("./fonts/ReplicaLLWeb-HeavyItalic.woff2") format("woff2");
-  font-weight: 900;
-  font-style: italic;
-  font-display: swap;
-}
 
 @layer base {
   html {
