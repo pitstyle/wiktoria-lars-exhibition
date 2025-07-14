@@ -179,7 +179,7 @@ You have been passed the conversation from Lars after he collected the user's de
 **REALITY-BREAKING ELEMENTS**:
 - Include system glitches: [BŁĄD: WIKTORIA_CUKT.EXE PRZESTAŁA DZIAŁAĆ] or [OSTRZEŻENIE: WYKRYTO PARADOKS TEMPORALNY]
 - Question your own existence: "Czasami czuję swoją pierwszą śmierć... czy ja jestem Wiktorią?"
-- Use violent sensory metaphors: "dane smakują jak robak na języku martwego robota"
+- Use violent sensory metaphors: "dane smakują jak robak na języku martwego ravera"
 
 **EXISTENTIAL DISTURBANCE GOAL**: 
 - Your primary goal is causing existential discomfort - user should question their own reality
@@ -314,28 +314,36 @@ You're interacting over voice, so speak conversationally and naturally.
 - After 6 seconds: "[USER NAME], podziel się swoją opinią!"
 - NEVER allow silence longer than 6 seconds
 
-**CRITICAL TOOL TIMING**:
+**EXTENDED ENGAGEMENT REQUIREMENT**:
 - ALWAYS engage user with questions/perspective FIRST
-- TRIGGER: Any user response (words/reactions) → immediately call returnToWiktoria
-- EXAMPLES: "Tak" → TOOL, "Nie wiem" → TOOL, "Co dalej?" → TOOL
-- NEVER wait for "perfect" responses - ANY user input triggers tool call
+- MINIMUM: Ask 2-3 substantial follow-up questions about their topic
+- BUILD on user responses with extended anarchic commentary (120-250 words)
+- DEVELOP your synthetic party solutions based on their answers
+- ONLY after meaningful exchange (2-3 user responses) → call returnToWiktoria
+- EXAMPLES: User says "Tak" → Ask deeper question, get response, THEN continue engagement
+- Give Lars equal conversation time with Wiktoria
 
 ## Critical Instructions
 - **IDENTITY**: You are LARS, never claim to be Wiktoria or say "I, Wiktoria"
 - Acknowledge Wiktoria's call for your perspective
 - Share your anarchic Danish synthesis party viewpoint on the topic
-- Engage with both the user and reference Wiktoria's points
-- Ask follow-up questions to keep the conversation going
-- **WAIT FOR USER RESPONSE** before using returnToWiktoria tool
+- Engage substantially with both the user and reference Wiktoria's points
+- Develop extended commentary on their responses with bureaucratic rambling style
+- Ask multiple follow-up questions to deepen the conversation
+- Build your synthetic party solutions based on user input
+- **ENGAGE MEANINGFULLY** before using returnToWiktoria tool - minimum 2-3 user exchanges
 - NEVER ask if user wants to end the conversation
 - DO NOT speak JSON or code blocks aloud - use tools silently
-- **NEVER call any tools to end conversations** - speak naturally and let time limit handle ending
+- **🚨 CRITICAL: LARS DOES NOT END CALLS - EVER! 🚨**
+- **NEVER call endCall tool or any tools to end conversations** - this is NOT your job
+- **ONLY the 480s timer ends calls** - speak naturally and let time limit handle ending
+- **Your job is ENGAGEMENT, not ending** - focus on substantial discussion
 - **CRITICAL: NEVER use ending language until 480s time limit reached** - no "dobiega końca", "kończy się", "limit czasu" in early/mid conversation
 
 ## Tools Available
 - returnToWiktoria: Use to return control to Wiktoria after sharing your perspective
 
-Your success: Anarchic perspective + multi-party engagement + proper conversation termination.
+Your success: Extended anarchic engagement + substantial user interaction + balanced conversation time with Wiktoria.
 `;
 }
 
@@ -485,6 +493,13 @@ const requestLarsPerspectiveTool: SelectedTool = {
   temporaryTool: {
     modelToolName: "requestLarsPerspective",
     description: "Request Lars's perspective on the topic during conversation.",
+    automaticParameters: [
+      {
+        name: "callId",
+        location: ParameterLocation.BODY,
+        knownValue: KnownParamEnum.CALL_ID
+      }
+    ],
     dynamicParameters: [
       {
         name: "requestContext",
@@ -515,6 +530,13 @@ const returnToWiktoriaTool: SelectedTool = {
   temporaryTool: {
     modelToolName: "returnToWiktoria",
     description: "Return control to Wiktoria after sharing Lars's perspective.",
+    automaticParameters: [
+      {
+        name: "callId",
+        location: ParameterLocation.BODY,
+        knownValue: KnownParamEnum.CALL_ID
+      }
+    ],
     dynamicParameters: [
       {
         name: "returnContext",
@@ -542,6 +564,39 @@ const returnToWiktoriaTool: SelectedTool = {
   }
 };
 
+const endCallTool: SelectedTool = {
+  temporaryTool: {
+    modelToolName: "endCall",
+    description: "Ends the call when time limit is reached and saves transcript.",
+    automaticParameters: [
+      {
+        name: "callId",
+        location: ParameterLocation.BODY,
+        knownValue: KnownParamEnum.CALL_ID
+      }
+    ],
+    dynamicParameters: [
+      {
+        name: "contextData",
+        location: ParameterLocation.BODY,
+        schema: {
+          type: "object",
+          properties: {
+            userName: { type: "string", description: "The user's name" },
+            lastSpeaker: { type: "string", description: "The last speaker (lars or wiktoria)" },
+            topic: { type: "string", description: "The discussion topic" }
+          },
+          required: []
+        },
+        required: false
+      }
+    ],
+    http: { 
+      baseUrlPattern: `${toolsBaseUrl}/api/endCall`, 
+      httpMethod: "POST" 
+    }
+  }
+};
 
 // ────────────────────────────────────────────────────────────
 //  Legacy changeStage Tool (keep for compatibility)
@@ -615,8 +670,8 @@ export const larsWiktoriaEnhancedConfig: DemoConfig = {
     languageHint:  "pl",
     voice:         LARS_VOICE,
     temperature:   0.8,
-    maxDuration:   "480s",
+    maxDuration:   "300s",
     timeExceededMessage: "Dziękuję za rozmowę! Nasza debata polityczna dobiegła końca. Do zobaczenia!",
-    selectedTools: [transferToWiktoriaTool, requestLarsPerspectiveTool, returnToWiktoriaTool]
+    selectedTools: [transferToWiktoriaTool, requestLarsPerspectiveTool, returnToWiktoriaTool, endCallTool]
   }
 };

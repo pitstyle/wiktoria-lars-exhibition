@@ -5,7 +5,7 @@ import { startCall, endCall } from '@/lib/callFunctions';
 import { CallConfig, SelectedTool } from '@/lib/types';
 import { larsWiktoriaEnhancedConfig as demoConfig } from '@/app/lars-wiktoria-enhanced-config';
 import { Role, Transcript, UltravoxExperimentalMessageEvent, UltravoxSessionStatus } from 'ultravox-client';
-import { saveConversation, updateConversationEnd, Conversation } from '@/lib/supabase';
+import { saveConversation, updateConversationEnd, saveFullTranscript, Conversation } from '@/lib/supabase';
 import VoiceActivation from './VoiceActivation';
 // TEMP DISABLED: import PhoneTonePlayer, { PhoneTonePlayerRef } from './PhoneTonePlayer';
 import { SimplePhoneTone } from '@/lib/simplePhoneTone';
@@ -252,6 +252,7 @@ export default function ExhibitionInterface({
     }
   }, [userSilenceTimeoutId]);
 
+
   // Unified return to waiting state function (voice-only exhibition)
   const returnToWaitingState = useCallback(async (reason: string = 'unknown') => {
     console.log(`🔄 RETURN TO WAITING STATE - Reason: ${reason}`);
@@ -267,26 +268,61 @@ export default function ExhibitionInterface({
       // Clear user silence timeout
       clearUserSilenceTimeout();
       
-      // Archive conversation if it exists
+      // Archive conversation if it exists - SAVE TO SUPABASE DATABASE (NON-BLOCKING)
       if (currentConversation && ultravoxCallId) {
-        try {
-          const response = await fetch('/api/fetch-ultravox-data', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              callId: ultravoxCallId,
-              conversationId: currentConversation.id 
-            })
-          });
-          
-          if (response.ok) {
-            console.log('💾 Exhibition transcript archived successfully');
+        // Save to database ASYNCHRONOUSLY to avoid blocking UI navigation
+        console.log('💾 Starting async database save (non-blocking)...');
+        
+        // Use setImmediate to ensure database saving doesn't block UI state reset
+        setImmediate(async () => {
+          try {
+            console.log('💾 Saving conversation to Supabase database...');
+            
+            // First, try to get the full transcript from Ultravox
+            let fullTranscript = null;
+            let transcriptCount = 0;
+            
+            try {
+              console.log('🔄 Fetching transcript from Ultravox API...');
+              const messagesResponse = await fetch(`https://api.ultravox.ai/api/calls/${ultravoxCallId}/messages`, {
+                headers: {
+                  'X-API-Key': `${process.env.ULTRAVOX_API_KEY}`,
+                },
+              });
+              
+              if (messagesResponse.ok) {
+                fullTranscript = await messagesResponse.json();
+                transcriptCount = fullTranscript.results?.length || 0;
+                console.log(`✅ Retrieved transcript: ${transcriptCount} messages`);
+              } else {
+                console.warn('⚠️ Failed to fetch transcript from Ultravox:', messagesResponse.status);
+              }
+            } catch (transcriptError) {
+              console.warn('⚠️ Error fetching transcript:', transcriptError);
+            }
+            
+            // Save full transcript to database
+            if (fullTranscript) {
+              try {
+                await saveFullTranscript(currentConversation.id, fullTranscript);
+                console.log('✅ Full transcript saved to Supabase database');
+              } catch (transcriptError) {
+                console.error('❌ Failed to save full transcript:', transcriptError);
+              }
+            }
+            
+            // Update conversation end time and message count
+            try {
+              await updateConversationEnd(currentConversation.id, transcriptCount || callTranscript?.length || 0);
+              console.log('✅ Conversation end time updated in database');
+            } catch (dbError) {
+              console.error('❌ Database update failed:', dbError);
+            }
+            
+          } catch (error) {
+            console.error('❌ Failed to save conversation to database:', error);
           }
-          
-          await updateConversationEnd(currentConversation.id, callTranscript?.length || 0);
-        } catch (error) {
-          console.error('❌ Failed to archive exhibition conversation:', error);
-        }
+        });
       }
       
       // Reset all state to waiting state
@@ -345,9 +381,9 @@ export default function ExhibitionInterface({
         setPhoneToneEnabled(true);
         setAgentStatus('ready');
         
-        // Then call the full cleanup function
-        console.log('🔌 Calling full cleanup function');
-        await returnToWaitingState('ultravox session ended');
+        // Then call the full cleanup function (non-blocking)
+        console.log('🔌 Calling full cleanup function (non-blocking)');
+        returnToWaitingState('ultravox session ended'); // Remove await to prevent blocking
         return;
       }
     } else {

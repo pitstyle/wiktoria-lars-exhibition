@@ -1,0 +1,47 @@
+pitstyle@raspberrypi:~/Desktop/exhibition/Pi $ npm audit fix --force
+npm warn using --force Recommended protections disabled.
+npm warn audit Updating vite to 7.0.4, which is a SemVer major change.
+
+added 9 packages, changed 2 packages, and audited 454 packages in 16s
+
+150 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+pitstyle@raspberrypi:~/Desktop/exhibition/Pi $ npm audit
+found 0 vulnerabilities
+pitstyle@raspberrypi:~/Desktop/exhibition/Pi $ npm run buil:pi
+npm error Missing script: "buil:pi"
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run
+npm error A complete log of this run can be found in: /home/pitstyle/.npm/_logs/2025-07-11T17_02_42_592Z-debug-0.log
+pitstyle@raspberrypi:~/Desktop/exhibition/Pi $ npm build:pi
+Unknown command: "build:pi"
+
+
+Did you mean this?
+  npm run build # run the "build" package script
+To see a list of supported npm commands, run:
+  npm help
+pitstyle@raspberrypi:~/Desktop/exhibition/Pi $ npm run build
+
+> ultravox-demo-template-vercel@0.1.0 build
+> rm -rf .next && next build
+
+ ⚠ Disabling SWC Minifer will not be an option in the next major version. Please report any issues you may be experiencing to https://github.com/vercel/next.js/issues
+  ▲ Next.js 14.2.30
+  - Environments: .env.local
+  - Experiments (use with caution):
+    · cpus
+
+   Creating an optimized production build ...
+   Downloading swc package @next/swc-linux-arm-gnueabihf...
+ ⨯ Failed to download swc package from https://registry.npmjs.org/@next/swc-linux-arm-gnueabihf/-/swc-linux-arm-gnueabihf-14.2.30.tgz
+unhandledRejection Error: request failed with status 404
+    at /home/pitstyle/Desktop/exhibition/Pi/node_modules/next/dist/lib/download-swc.js:98:23
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async extractBinary (/home/pitstyle/Desktop/exhibition/Pi/node_modules/next/dist/lib/download-swc.js:92:9)
+    at async downloadNativeNextSwc (/home/pitstyle/Desktop/exhibition/Pi/node_modules/next/dist/lib/download-swc.js:153:9)
+    at async tryLoadNativeWithFallback (/home/pitstyle/Desktop/exhibition/Pi/node_modules/next/dist/build/swc/index.js:292:5)
+    at async /home/pitstyle/Desktop/exhibition/Pi/node_modules/next/dist/build/swc/index.js:276:40
