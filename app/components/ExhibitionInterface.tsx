@@ -128,7 +128,7 @@ export default function ExhibitionInterface({
 
   // Simple tone management
   useEffect(() => {
-    console.log('📞 Simple tone effect:', { phoneToneEnabled, isWaitingForVoice, isCallActive });
+    console.log('📞 Simple tone effect:', { phoneToneEnabled, isWaitingForVoice, isCallActive, hasUserGesture });
     
     // SIMPLIFIED: Only play tone when waiting for voice AND tone is enabled
     if (phoneToneEnabled && isWaitingForVoice && !isCallActive) {
@@ -136,14 +136,31 @@ export default function ExhibitionInterface({
       if (!simpleToneRef.current) {
         simpleToneRef.current = new SimplePhoneTone(0.05); // Quiet volume
       }
+      
+      // Attempt to start tone with fallback mechanism
       simpleToneRef.current.start().catch((err) => {
-        console.log('📞 Simple tone start failed (will retry on gesture):', err.message);
+        console.log('📞 Simple tone start failed:', err.message);
+        
+        // If it fails due to user gesture, show overlay or retry later
+        if (err.message.includes('AudioContext') || err.message.includes('user gesture') || err.message.includes('not allowed to start')) {
+          console.log('📞 Tone failed due to user gesture - will retry on interaction');
+          setShowAudioEnableOverlay(true);
+        } else {
+          console.log('📞 Tone failed for other reason - will retry in 2 seconds');
+          setTimeout(() => {
+            if (phoneToneEnabled && isWaitingForVoice && !isCallActive && simpleToneRef.current) {
+              simpleToneRef.current.start().catch((retryErr) => {
+                console.log('📞 Tone retry failed:', retryErr.message);
+              });
+            }
+          }, 2000);
+        }
       });
     } else if (simpleToneRef.current) {
       console.log('📞 Stopping simple tone...');
       simpleToneRef.current.stop();
     }
-  }, [phoneToneEnabled, isWaitingForVoice, isCallActive]);
+  }, [phoneToneEnabled, isWaitingForVoice, isCallActive, hasUserGesture]);
 
   // Auto-scroll transcript
   useEffect(() => {
@@ -218,8 +235,36 @@ export default function ExhibitionInterface({
       setAgentStatus('ready');
       setConversationEnding(false); // Reset conversation ending flag
       
-      // Let main tone effect handle restart based on state changes
-      console.log('📞 State reset complete - main tone effect will handle restart');
+      // EXPLICIT TONE RESTART - ensure tone starts after session reset
+      console.log('📞 Explicitly restarting phone tone after session reset...');
+      setTimeout(() => {
+        // Since user has already interacted during the call, we can safely restart tone
+        // The main useEffect will handle the actual restart based on state
+        console.log('📞 State updated - tone management useEffect will handle restart');
+        console.log('📞 Current state for tone restart:', { 
+          phoneToneEnabled: true, 
+          isWaitingForVoice: true, 
+          isCallActive: false,
+          hasUserGesture
+        });
+        
+        // Force tone restart if user gesture is available
+        if (hasUserGesture) {
+          try {
+            if (!simpleToneRef.current) {
+              simpleToneRef.current = new SimplePhoneTone(0.05);
+            }
+            simpleToneRef.current.start().catch((err) => {
+              console.log('📞 Tone restart failed (normal on mobile):', err.message);
+            });
+            console.log('📞 Phone tone explicitly restarted after call');
+          } catch (error) {
+            console.log('📞 Error restarting tone:', error);
+          }
+        } else {
+          console.log('📞 No user gesture available - tone will start on next interaction');
+        }
+      }, 100); // Small delay to ensure state is fully updated
       
       onSessionEnd?.();
       console.log('✅ RETURN TO WAITING COMPLETE - Exhibition session ended, app ready for next user');
@@ -375,6 +420,13 @@ export default function ExhibitionInterface({
     
     try {
       console.log('🚀 Voice activation triggered - starting call');
+      
+      // Ensure user gesture is captured since voice activation requires user interaction
+      if (!hasUserGesture) {
+        console.log('📞 Capturing user gesture during voice activation');
+        setHasUserGesture(true);
+      }
+      
       setIsWaitingForVoice(false);
       
       // DON'T stop tone yet - let it continue until Lars speaks

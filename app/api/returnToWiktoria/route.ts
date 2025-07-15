@@ -15,9 +15,12 @@ export async function POST(request: NextRequest) {
   // Ensure exchangeCount is a number (fix for Ultravox string conversion)
   const currentExchangeCount = typeof exchangeCount === 'string' ? parseInt(exchangeCount, 10) : exchangeCount;
   
-  // Update conversation metadata
+  // Update conversation metadata - DON'T increment here since requestLarsPerspective already incremented
   const newExchangeCount = currentExchangeCount;
-  const newConversationPhase = currentExchangeCount <= 1 ? "early" : currentExchangeCount <= 2 ? "mid" : "late";
+  const newConversationPhase = newExchangeCount <= 2 ? "early" : newExchangeCount <= 6 ? "mid" : "late";
+  
+  console.log(`📊 Exchange count maintained: ${currentExchangeCount} (phase: ${newConversationPhase})`);
+  console.log(`🔄 Conversation flow: Lars returned to Wiktoria for exchange ${newExchangeCount}`);
 
   // SIMPLE APPROACH: Keep memory clean and character voices distinct
 
@@ -56,8 +59,8 @@ export async function POST(request: NextRequest) {
     }
   };
 
-  // Conversation flow control - prevent infinite loops (increased threshold)
-  const shouldLimitTools = newExchangeCount >= 6; // After 6 exchanges, limit tool options to allow more natural conversation
+  // Conversation flow control - prevent infinite loops (increased threshold for exhibition)
+  const shouldLimitTools = newExchangeCount >= 12; // After 12 exchanges, limit tool options to allow more natural conversation
   
   const responseBody = {
     systemPrompt: enhancedPrompt,
@@ -132,9 +135,9 @@ export async function POST(request: NextRequest) {
   
   // Log conversation flow control
   if (shouldLimitTools) {
-    console.log(`🚫 Tools limited due to exchange count: ${newExchangeCount}. Encouraging conversation conclusion.`);
+    console.log(`🚫 Tools limited due to exchange count: ${newExchangeCount} (>= 12). Encouraging conversation conclusion.`);
   } else {
-    console.log(`✅ Tools available for exchange count: ${newExchangeCount}. Conversation continues.`);
+    console.log(`✅ Tools available for exchange count: ${newExchangeCount} (< 12). Conversation continues.`);
   }
 
   const response = NextResponse.json(responseBody);

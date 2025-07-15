@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "@/app/globals.css";
+import "@/lib/keepAlive"; // Initialize keep-alive service
 
 export const metadata: Metadata = {
   title: "AI Political Performance",

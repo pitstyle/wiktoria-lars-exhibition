@@ -15,9 +15,12 @@ export async function POST(request: NextRequest) {
   // Ensure exchangeCount is a number (fix for Ultravox string conversion)
   const currentExchangeCount = typeof exchangeCount === 'string' ? parseInt(exchangeCount, 10) : exchangeCount;
   
-  // Update exchange count and conversation phase
+  // Update exchange count and conversation phase - INCREMENT here for Lars perspective
   const newExchangeCount = currentExchangeCount + 1;
-  const newConversationPhase = newExchangeCount <= 1 ? "early" : newExchangeCount <= 2 ? "mid" : "late";
+  const newConversationPhase = newExchangeCount <= 2 ? "early" : newExchangeCount <= 6 ? "mid" : "late";
+  
+  console.log(`📊 Exchange count: ${currentExchangeCount} → ${newExchangeCount} (phase: ${newConversationPhase})`);
+  console.log(`🔄 Conversation flow: Wiktoria requested Lars perspective for exchange ${newExchangeCount}`);
 
   // Use basic prompt to avoid memory lookup delays
   const enhancedPrompt = getLarsPerspectivePrompt();

@@ -60,19 +60,6 @@ const nextConfig = {
     ];
   },
   
-  // Environment-specific redirects for exhibition mode
-  async redirects() {
-    if (process.env.NODE_ENV === 'production') {
-      return [
-        {
-          source: '/',
-          destination: '/?exhibition=true',
-          permanent: false,
-        },
-      ];
-    }
-    return [];
-  },
 };
 
 export default nextConfig;

@@ -368,9 +368,29 @@ curl http://PI_IP:3000
 - [ ] No redirect loops in browser
 
 ### **Known Issues:**
-- [ ] Speaker output configuration needs additional work
-- [ ] Voice detection works, audio output needs ALSA configuration
-- [ ] Browser audio vs command-line audio use different paths
+- [x] ~~Speaker output configuration needs additional work~~ FIXED! 
+- [x] ~~Voice detection works, audio output needs ALSA configuration~~ FIXED!
+- [x] ~~Browser audio vs command-line audio use different paths~~ FIXED!
+
+### **USB Audio Setup (REQUIRED):**
+After deployment, run on each Pi:
+```bash
+# Quick USB audio setup
+cat > ~/.asoundrc << 'EOF'
+defaults.pcm.card 3
+defaults.ctl.card 3
+EOF
+
+pactl set-default-sink alsa_output.usb-Generic_USB_Audio-00.analog-stereo
+pactl suspend-sink alsa_output.usb-Generic_USB_Audio-00.analog-stereo 0
+
+# Set audio volume to maximum
+amixer -c 3 sset Speaker 100% unmute 2>/dev/null || true
+amixer -c 3 sset Headphone 100% unmute 2>/dev/null || true
+pactl set-sink-volume alsa_output.usb-Generic_USB_Audio-00.analog-stereo 100%
+
+speaker-test -t wav -c 2 -D hw:3,0 -l 1
+```
 
 ---
 
